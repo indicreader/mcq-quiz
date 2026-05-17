@@ -46,7 +46,7 @@ export interface Settings {
   // Revision Logic
   masteryThreshold: number;
   revisionQueueSize: number;
-  repeatIntervalBase: number; // in days
+  repeatIntervalBase: number;
   easyIntervalModifier: number;
   hardIntervalModifier: number;
   forgottenResurfacingEnabled: boolean;
@@ -57,6 +57,10 @@ export interface Settings {
   studyLockEnabled: boolean;
   examPressureEnabled: boolean;
   burnoutDetectionEnabled: boolean;
+  mistakeJournalEnabled: boolean;
+  energyBasedScheduling: boolean;
+  subjectHeatmapsEnabled: boolean;
+  smartStreakSystemEnabled: boolean;
   examDate?: string;
   
   // System
@@ -103,6 +107,10 @@ export const DEFAULT_SETTINGS: Settings = {
   studyLockEnabled: false,
   examPressureEnabled: false,
   burnoutDetectionEnabled: true,
+  mistakeJournalEnabled: true,
+  energyBasedScheduling: false,
+  subjectHeatmapsEnabled: true,
+  smartStreakSystemEnabled: true,
   
   isFullscreen: false,
   keepScreenAwake: true,

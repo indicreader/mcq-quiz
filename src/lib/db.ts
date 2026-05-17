@@ -73,6 +73,14 @@ export interface ReviewLog {
   reviewTime: number;
 }
 
+export interface BackupRecord {
+  id?: number;
+  timestamp: number;
+  trigger: string;
+  sizeBytes: number;
+  data: string;
+}
+
 export class McqDatabase extends Dexie {
   decks!: Table<Deck>;
   subjects!: Table<Subject>;
@@ -81,17 +89,19 @@ export class McqDatabase extends Dexie {
   questions!: Table<Question>;
   options!: Table<Option>;
   reviewLogs!: Table<ReviewLog>;
+  backups!: Table<BackupRecord>;
 
   constructor() {
     super('McqPrepDB');
-    this.version(4).stores({
+    this.version(5).stores({
       decks: 'id, name',
       subjects: 'id, deckId',
       topics: 'id, subjectId',
       concepts: 'id, topicId, nextReview, isLeech, stability',
       questions: 'id, conceptId, wrongCount',
       options: 'id, questionId',
-      reviewLogs: '++id, conceptId, reviewTime'
+      reviewLogs: '++id, conceptId, reviewTime',
+      backups: '++id, timestamp'
     });
   }
 }

@@ -2,6 +2,35 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500&family=Lexend:wght@400;500;600&family=Roboto+Slab:wght@400;700&display=swap');
 @import url('https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css');
 
+:root {
+  /* Dynamic Material You (Fallback Tokens) */
+  --m3-primary: #0061a4;
+  --m3-on-primary: #ffffff;
+  --m3-primary-container: #d1e4ff;
+  --m3-on-primary-container: #001d36;
+  --m3-secondary: #535f70;
+  --m3-on-secondary: #ffffff;
+  --m3-secondary-container: #d7e3f7;
+  --m3-surface: #fdfcff;
+  --m3-on-surface: #1a1c1e;
+  --m3-surface-variant: #dfe2eb;
+  --m3-outline: #73777f;
+}
+
+.dark {
+  --m3-primary: #9ecaeb;
+  --m3-on-primary: #003258;
+  --m3-primary-container: #00497d;
+  --m3-on-primary-container: #d1e4ff;
+  --m3-secondary: #bbc7db;
+  --m3-on-secondary: #253140;
+  --m3-secondary-container: #3b4858;
+  --m3-surface: #1a1c1e;
+  --m3-on-surface: #e2e2e6;
+  --m3-surface-variant: #43474e;
+  --m3-outline: #8d9199;
+}
+
 @theme {
   --font-sans: "Roboto", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;

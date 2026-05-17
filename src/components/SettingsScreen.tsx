@@ -3,6 +3,7 @@ import { ChevronLeft, Moon, Sun, Monitor, Type, Layout, Activity, Eye, Zap, Shie
 import { Settings, FontFamily, ThemeMode, ReadingDensity, AnimationStyle, ColorMode, Orientation, Schedule, AnswerTiming, ExplanationMode, SessionIntensity } from '../lib/settings';
 import { db } from '../lib/db';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { exportToCSV, exportToAnki } from '../lib/export';
 
 interface SettingsScreenProps {
   settings: Settings;
@@ -287,6 +288,52 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                     className="bg-transparent text-xs font-black text-[#0061A4] w-12 text-right"
                  />
                </div>
+               
+               <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-black rounded-xl">
+                 <div className="flex flex-col">
+                   <span className="text-[10px] font-black text-gray-400 uppercase">Repeat Interval Base</span>
+                   <span className="text-[9px] text-gray-500 font-medium">Starting days before first review</span>
+                 </div>
+                 <input 
+                    type="number" step="0.1"
+                    value={settings.repeatIntervalBase}
+                    onChange={(e) => update({ repeatIntervalBase: parseFloat(e.target.value) })}
+                    className="bg-transparent text-xs font-black text-[#0061A4] w-12 text-right"
+                 />
+               </div>
+
+               <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-black rounded-xl">
+                 <div className="flex flex-col">
+                   <span className="text-[10px] font-black text-gray-400 uppercase">Easy Interval Modifier</span>
+                   <span className="text-[9px] text-gray-500 font-medium">Multiplier on easy response</span>
+                 </div>
+                 <input 
+                    type="number" step="0.1"
+                    value={settings.easyIntervalModifier}
+                    onChange={(e) => update({ easyIntervalModifier: parseFloat(e.target.value) })}
+                    className="bg-transparent text-xs font-black text-[#0061A4] w-12 text-right"
+                 />
+               </div>
+
+               <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-black rounded-xl">
+                 <div className="flex flex-col">
+                   <span className="text-[10px] font-black text-gray-400 uppercase">Hard Interval Modifier</span>
+                   <span className="text-[9px] text-gray-500 font-medium">Multiplier on hard response</span>
+                 </div>
+                 <input 
+                    type="number" step="0.1"
+                    value={settings.hardIntervalModifier}
+                    onChange={(e) => update({ hardIntervalModifier: parseFloat(e.target.value) })}
+                    className="bg-transparent text-xs font-black text-[#0061A4] w-12 text-right"
+                 />
+               </div>
+
+               <SettingToggle 
+                 label="Weak Topic Prioritization"
+                 description="Automatically fetch poorly performing subjects first"
+                 checked={settings.weakTopicPrioritization}
+                 onChange={(v) => update({ weakTopicPrioritization: v })}
+               />
                <SettingToggle 
                  label="Forgotten Resurfacing"
                  description="Aggressive return of failed concepts"
@@ -338,6 +385,34 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                 onChange={(v) => update({ focusAudioEnabled: v })}
                 icon={<Volume2 className="w-4 h-4 text-gray-400" />}
              />
+             <SettingToggle 
+                label="Mistake Journal" 
+                description="Auto-log and categorize incorrect answers"
+                checked={settings.mistakeJournalEnabled}
+                onChange={(v) => update({ mistakeJournalEnabled: v })}
+                icon={<BookOpen className="w-4 h-4 text-emerald-600" />}
+             />
+             <SettingToggle 
+                label="Energy-Based Scheduling" 
+                description="Align intense topics with peak focus hours"
+                checked={settings.energyBasedScheduling}
+                onChange={(v) => update({ energyBasedScheduling: v })}
+                icon={<Sun className="w-4 h-4 text-yellow-500" />}
+             />
+             <SettingToggle 
+                label="Subject Heatmaps" 
+                description="Visual performance tracking across topics"
+                checked={settings.subjectHeatmapsEnabled}
+                onChange={(v) => update({ subjectHeatmapsEnabled: v })}
+                icon={<Layout className="w-4 h-4 text-indigo-500" />}
+             />
+             <SettingToggle 
+                label="Discipline Streak" 
+                description="Smart streak system based on consistency"
+                checked={settings.smartStreakSystemEnabled}
+                onChange={(v) => update({ smartStreakSystemEnabled: v })}
+                icon={<TrendingUp className="w-4 h-4 text-red-500" />}
+             />
           </div>
         </section>
 
@@ -382,13 +457,13 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
           </div>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
-                <button className="p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col items-center gap-2 transition-all active:scale-95 shadow-sm">
-                    <Save className="w-5 h-5 text-blue-500" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">EXPORT CSV</span>
+                <button onClick={exportToCSV} className="p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col items-center gap-2 transition-all active:scale-95 shadow-sm hover:border-[#0061A4] group">
+                    <Save className="w-5 h-5 text-blue-500 group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#0061A4]">EXPORT CSV</span>
                 </button>
-                <button className="p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col items-center gap-2 transition-all active:scale-95 shadow-sm">
-                    <Layers className="w-5 h-5 text-purple-500" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">ANKI SYNC</span>
+                <button onClick={exportToAnki} className="p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col items-center gap-2 transition-all active:scale-95 shadow-sm hover:border-purple-500 group">
+                    <Layers className="w-5 h-5 text-purple-500 group-hover:scale-110 transition-transform" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-purple-600">ANKI SYNC</span>
                 </button>
             </div>
             
@@ -401,7 +476,18 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                     <h5 className="text-xs font-black uppercase tracking-tight dark:text-white">Local Encrypted Backup</h5>
                     <p className="text-[10px] text-gray-400 font-bold mt-1 uppercase">Midnight Protocol Active</p>
                   </div>
-                  <button className="mt-2 px-6 py-2 bg-gray-100 dark:bg-gray-800 rounded-full text-[10px] font-black text-[#0061A4] uppercase tracking-widest active:scale-95 transition-all">
+                  <button 
+                    onClick={async () => {
+                        const { createLocalBackup } = await import('../lib/backup');
+                        await createLocalBackup('MANUAL');
+                        const latest = await db.backups.orderBy('timestamp').last();
+                        if (latest) {
+                            alert(`Verified local backup created on ${new Date(latest.timestamp).toLocaleString()}.\nSize: ${(latest.sizeBytes / 1024).toFixed(2)} KB`);
+                        } else {
+                            alert('Backup verification failed.');
+                        }
+                    }}
+                    className="mt-2 px-6 py-2 bg-gray-100 dark:bg-gray-800 rounded-full text-[10px] font-black text-[#0061A4] uppercase tracking-widest active:scale-95 transition-all">
                      Manual Verification
                   </button>
                </div>
@@ -506,11 +592,32 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
              <Shield className="w-3 h-3 text-red-500" />
              OS Safety & Recovery
           </div>
-          <div className="bg-red-50 dark:bg-red-900/10 rounded-2xl p-4 border border-red-100 dark:border-red-900/30 flex items-center justify-between cursor-pointer" onClick={() => localStorage.clear()}>
+          <div className="space-y-2">
+            <div className="bg-red-50 dark:bg-red-900/10 rounded-2xl p-4 border border-red-100 dark:border-red-900/30 flex items-center justify-between cursor-pointer active:scale-95 transition-all" onClick={async () => {
+                if (window.confirm("This will wipe the current DB and insert 120 testing questions (History, Polity, Reasoning, English). Continue?")) {
+                   const { seedData } = await import('../lib/seed');
+                   await seedData();
+                   alert("Database seeded! Reloading.");
+                   window.location.reload();
+                }
+            }}>
+                <div className="flex items-center gap-4">
+                    <Database className="w-5 h-5 text-orange-500" />
+                    <span className="text-sm font-black text-orange-600 dark:text-orange-400 uppercase tracking-tighter">Seed Testing Data</span>
+                </div>
+            </div>
+            <div className="bg-red-50 dark:bg-red-900/10 rounded-2xl p-4 border border-red-100 dark:border-red-900/30 flex items-center justify-between cursor-pointer active:scale-95 transition-all" onClick={() => {
+                if (window.confirm("Complete wipe of all local data?")) {
+                  localStorage.clear();
+                  indexedDB.deleteDatabase('McqPrepDB');
+                  window.location.reload();
+                }
+            }}>
                 <div className="flex items-center gap-4">
                     <RotateCcw className="w-5 h-5 text-red-500" />
                     <span className="text-sm font-black text-red-600 dark:text-red-400 uppercase tracking-tighter">Emergency Factory Reset</span>
                 </div>
+            </div>
           </div>
         </section>
 

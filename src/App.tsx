@@ -133,6 +133,20 @@ function MainApp() {
     saveSettings(settings);
   }, [settings]);
 
+  // Auto Backup Midnight Check
+  useEffect(() => {
+     if (settings.autoBackupEnabled) {
+         import('./lib/backup').then(({ createLocalBackup }) => {
+            const lastBackupStr = localStorage.getItem('lastCheckBackupDate');
+            const todayStr = new Date().toDateString();
+            if (lastBackupStr !== todayStr) {
+                createLocalBackup('MIDNIGHT');
+                localStorage.setItem('lastCheckBackupDate', todayStr);
+            }
+         });
+     }
+  }, [settings.autoBackupEnabled]);
+
   const selectedDeck = useLiveQuery(
     () => selectedDeckId ? db.decks.get(selectedDeckId) : Promise.resolve(null),
     [selectedDeckId]
