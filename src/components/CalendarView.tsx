@@ -74,18 +74,18 @@ export default function CalendarView({ settings, onBack }: { settings: Settings,
             <section className={`p-6 rounded-3xl border ${examStatus.isUrgent ? 'bg-red-50 border-red-100 dark:bg-red-900/10 dark:border-red-900/30' : 'bg-blue-50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/30'}`}>
                 <div className="flex justify-between items-start">
                     <div className="space-y-1">
-                        <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] ${examStatus.isUrgent ? 'text-red-500' : 'text-[#0061A4] dark:text-blue-300'}`}>
+                        <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] ${examStatus.isUrgent ? 'text-red-500' : 'text-[var(--m3-primary)] dark:text-blue-300'}`}>
                             Target Engagement
                         </h4>
                         <p className="text-2xl font-black dark:text-white">{examStatus.days} Days Remaining</p>
                     </div>
-                    <div className={`p-3 rounded-2xl ${examStatus.isUrgent ? 'bg-red-500 text-white' : 'bg-[#0061A4] text-white'}`}>
+                    <div className={`p-3 rounded-2xl ${examStatus.isUrgent ? 'bg-red-500 text-white' : 'bg-[var(--m3-primary)] text-white'}`}>
                         <Timer className="w-6 h-6" />
                     </div>
                 </div>
                 <div className="mt-4 pt-4 border-t border-black/5 flex gap-4">
                     <div className="flex items-center gap-2">
-                        <div className={`w-2 h-2 rounded-full ${examStatus.isUrgent ? 'bg-red-500' : 'bg-[#0061A4]'}`} />
+                        <div className={`w-2 h-2 rounded-full ${examStatus.isUrgent ? 'bg-red-500' : 'bg-[var(--m3-primary)]'}`} />
                         <span className="text-[10px] font-bold text-gray-500 uppercase">{examStatus.isUrgent ? 'Intensive Phase' : 'Stability Phase'}</span>
                     </div>
                 </div>
@@ -96,11 +96,11 @@ export default function CalendarView({ settings, onBack }: { settings: Settings,
         <section className="space-y-4">
            <div className="flex justify-between items-center px-2">
               <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Today's Agenda</h4>
-              <span className="text-[10px] font-bold text-[#0061A4] dark:text-blue-200">{todaySchedules.length} Scheduled</span>
+              <span className="text-[10px] font-bold text-[var(--m3-primary)] dark:text-blue-200">{todaySchedules.length} Scheduled</span>
            </div>
            <div className="space-y-3">
               {todaySchedules.length > 0 ? todaySchedules.map(s => (
-                  <div key={s.id} className="group p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center justify-between shadow-sm hover:border-[#0061A4]/30 transition-all">
+                  <div key={s.id} className="group p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center justify-between shadow-sm hover:border-[var(--m3-primary)]/30 transition-all">
                       <div className="flex items-center gap-4">
                           <div className={`p-3 rounded-xl ${s.type === 'TEST' ? 'bg-red-50 text-red-600' : s.type === 'REVISION' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
                               {s.type === 'TEST' ? <Zap className="w-5 h-5" /> : s.type === 'REVISION' ? <Clock className="w-5 h-5" /> : <Target className="w-5 h-5" />}
@@ -119,7 +119,7 @@ export default function CalendarView({ settings, onBack }: { settings: Settings,
                               <p className="text-[10px] text-gray-400 font-bold">{s.time} • Local Time</p>
                           </div>
                       </div>
-                      <button className="text-[9px] font-black text-gray-300 uppercase tracking-widest group-hover:text-[#0061A4] transition-colors">
+                      <button className="text-[9px] font-black text-gray-300 uppercase tracking-widest group-hover:text-[var(--m3-primary)] transition-colors">
                           PRE-FLIGHT
                       </button>
                   </div>
@@ -168,11 +168,11 @@ export default function CalendarView({ settings, onBack }: { settings: Settings,
               return (
                 <div 
                   key={i} 
-                  className={`aspect-square rounded-xl flex flex-col items-center justify-center relative transition-all group ${isToday ? 'bg-[#0061A4] text-white shadow-lg shadow-blue-200' : hasStudied ? 'bg-blue-50 dark:bg-[#003350] text-[#0061A4] dark:text-blue-100' : 'bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+                  className={`aspect-square rounded-xl flex flex-col items-center justify-center relative transition-all group ${isToday ? 'bg-[var(--m3-primary)] text-white shadow-lg shadow-blue-200' : hasStudied ? 'bg-blue-50 dark:bg-[#003350] text-[var(--m3-primary)] dark:text-blue-100' : 'bg-transparent text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
                 >
                   <span className="text-xs font-bold">{date.getDate()}</span>
                   {hasStudied && !isToday && (
-                      <div className="w-1 h-1 bg-[#0061A4] dark:bg-blue-300 rounded-full mt-1" />
+                      <div className="w-1 h-1 bg-[var(--m3-primary)] dark:bg-blue-300 rounded-full mt-1" />
                   )}
                 </div>
               );

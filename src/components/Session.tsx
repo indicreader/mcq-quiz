@@ -352,7 +352,7 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
                                 min="5" max="200" step="5"
                                 value={questionLimit || 20}
                                 onChange={(e) => setQuestionLimit(parseInt(e.target.value) || 20)}
-                                className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[var(--m3-primary)] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[#0061A4]"
+                                className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[var(--m3-primary)] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[var(--m3-primary)]"
                             />
                            </div>
                       </div>
@@ -366,7 +366,7 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
                                 min="5" max="240" step="5"
                                 value={timeLimit || 30}
                                 onChange={(e) => setTimeLimit(parseInt(e.target.value) || 30)}
-                                className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[#0061A4] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[#0061A4]"
+                                className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[var(--m3-primary)] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[var(--m3-primary)]"
                             />
                            </div>
                         </div>
@@ -376,7 +376,7 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
 
           <button
               onClick={() => setSetupMode(false)}
-              className="w-full py-5 bg-[#0061A4] text-white rounded-2xl font-black text-xs tracking-[0.2em] shadow-xl active:scale-95 transition-all mt-4"
+              className="w-full py-5 bg-[var(--m3-primary)] text-white rounded-2xl font-black text-xs tracking-[0.2em] shadow-xl active:scale-95 transition-all mt-4"
           >
               INITIATE CUSTOM EXAM
           </button>
@@ -390,7 +390,7 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
       <Check className="w-12 h-12 text-green-500" />
       <h2 className="text-xl font-bold dark:text-white">Session Complete!</h2>
       <p className="text-gray-500 dark:text-gray-400">No more concepts due for review.</p>
-      <button onClick={onBack} className="mt-4 text-[#0061A4] dark:text-[#D1E6FF] font-bold underline">Return Home</button>
+      <button onClick={onBack} className="mt-4 text-[var(--m3-primary)] dark:text-[var(--m3-primary-container)] font-bold underline">Return Home</button>
     </div>
   );
 
@@ -400,14 +400,19 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
     <div className="flex flex-col h-full bg-[#FEFBFF] dark:bg-[#1B1B1F]">
       <header className="p-4 flex items-center justify-between gap-4 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-[#1B1B1F] sticky top-0 z-20">
         <div className="flex items-center gap-4 flex-1">
-          {mode !== 'exam' && (
-            <button onClick={onBack} className="dark:text-[#E3E2E6] transition-all active:scale-90 bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-          )}
+          <button onClick={() => {
+            const message = mode === 'exam' 
+              ? "Are you sure you want to end the exam early? Progress will not be saved."
+              : "Are you sure you want to exit the session? Your progress in this session will be preserved.";
+            if (window.confirm(message)) {
+              onBack();
+            }
+          }} className="dark:text-[#E3E2E6] transition-all active:scale-90 bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
           <div className="flex flex-col flex-1">
              <div className="flex justify-between items-end mb-1">
-                <span className="text-[9px] font-black uppercase tracking-[0.1em] text-[#0061A4] dark:text-[#D1E6FF]">
+                <span className="text-[9px] font-black uppercase tracking-[0.1em] text-[var(--m3-primary)] dark:text-[var(--m3-primary-container)]">
                     {Math.round(progress)}% Complete
                 </span>
                 <span className="text-[9px] font-black uppercase tracking-[0.1em] text-gray-400">
@@ -415,14 +420,14 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
                 </span>
              </div>
              <div className="h-1.5 bg-[#E0E2EC] dark:bg-[#44474E] rounded-full overflow-hidden">
-               <div className="bg-[#0061A4] dark:bg-[#D1E6FF] h-full transition-all duration-700 ease-in-out" style={{ width: `${progress}%` }} />
+               <div className="bg-[var(--m3-primary)] dark:bg-[var(--m3-primary-container)] h-full transition-all duration-700 ease-in-out" style={{ width: `${progress}%` }} />
              </div>
           </div>
         </div>
         
-        <div className="flex items-center gap-2 px-4 py-2 bg-[#F2F7FF] dark:bg-[#001E2F] rounded-xl border border-[#D1E6FF] dark:border-[#004A77] shadow-sm">
-          <Timer className="w-4 h-4 text-[#0061A4] dark:text-[#D1E6FF]" />
-          <span className="text-xs font-black text-[#0061A4] dark:text-[#D1E6FF] tabular-nums font-mono">
+        <div className="flex items-center gap-2 px-4 py-2 bg-[#F2F7FF] dark:bg-[#001E2F] rounded-xl border border-[var(--m3-primary-container)] dark:border-[#004A77] shadow-sm">
+          <Timer className="w-4 h-4 text-[var(--m3-primary)] dark:text-[var(--m3-primary-container)]" />
+          <span className="text-xs font-black text-[var(--m3-primary)] dark:text-[var(--m3-primary-container)] tabular-nums font-mono">
             {timeLeft !== null ? formatTime(timeLeft) : formatTime(elapsedSeconds)}
           </span>
         </div>
@@ -431,7 +436,7 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
       <main className="flex-1 overflow-y-auto p-6 flex flex-col" style={{ gap: `${settings.questionSpacing}rem` }}>
         <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-                <div className="text-[10px] font-bold text-[#0061A4] dark:text-[#D1E6FF] uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded">
+                <div className="text-[10px] font-bold text-[var(--m3-primary)] dark:text-[var(--m3-primary-container)] uppercase tracking-widest bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded">
                     Q.{currentIndex + 1}
                 </div>
                 {currentConcept && (
@@ -468,9 +473,9 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
             if (isRevealed) {
               if (isCorrect) statusStyles = "border-[#008A24] bg-[#F3FFF5] dark:bg-[#002206] text-[#00390B] dark:text-[#B4F0B7] border-2 shadow-sm font-bold";
               else if (isSelected && !isCorrect) statusStyles = "border-[#BA1A1A] bg-[#FFF8F7] dark:bg-[#410002] text-[#410002] dark:text-[#FFDAD6] border-2 shadow-sm font-bold";
-              else if (isSelected) statusStyles = "border-[#0061A4] dark:border-[#D1E6FF] bg-[#F2F7FF] dark:bg-[#001E2F]";
+              else if (isSelected) statusStyles = "border-[var(--m3-primary)] dark:border-[var(--m3-primary-container)] bg-[#F2F7FF] dark:bg-[#001E2F]";
             } else if (isSelected) {
-              statusStyles = "border-[#0061A4] dark:border-[#D1E6FF] bg-[#F2F7FF] dark:bg-[#003350] border-2 ring-2 ring-[#0061A4]/20 ring-offset-1 dark:ring-offset-black font-bold";
+              statusStyles = "border-[var(--m3-primary)] dark:border-[var(--m3-primary-container)] bg-[#F2F7FF] dark:bg-[#003350] border-2 ring-2 ring-[var(--m3-primary)]/20 ring-offset-1 dark:ring-offset-black font-bold";
             }
 
             return (
@@ -481,7 +486,7 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
                 className={`w-full p-5 text-left border rounded-2xl transition-all duration-200 active:scale-[0.99] flex justify-between items-center group ${statusStyles}`}
               >
                 <div className="flex items-center gap-4">
-                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black border transition-all ${isSelected ? 'bg-[#0061A4] border-[#0061A4] text-white' : 'border-gray-200 dark:border-gray-700 text-gray-400 group-hover:border-[#0061A4]'}`}>
+                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black border transition-all ${isSelected ? 'bg-[var(--m3-primary)] border-[var(--m3-primary)] text-white' : 'border-gray-200 dark:border-gray-700 text-gray-400 group-hover:border-[var(--m3-primary)]'}`}>
                         {String.fromCharCode(65 + shuffledOptions.indexOf(opt))}
                     </div>
                     <span className="option-text font-medium leading-tight">{opt.text}</span>
@@ -496,7 +501,7 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
         {selectedOptionId && !isConfirmed && (
           <button 
             onClick={() => handleConfirm()}
-            className="w-full py-5 bg-[#0061A4] dark:bg-[#D1E6FF] text-white dark:text-[#003258] rounded-2xl flex items-center justify-center gap-3 font-black text-xs tracking-[0.2em] shadow-lg shadow-blue-200 dark:shadow-none animate-in fade-in slide-in-from-bottom-4 transition-all active:scale-95"
+            className="w-full py-5 bg-[var(--m3-primary)] dark:bg-[var(--m3-primary-container)] text-white dark:text-[#003258] rounded-2xl flex items-center justify-center gap-3 font-black text-xs tracking-[0.2em] shadow-lg shadow-blue-200 dark:shadow-none animate-in fade-in slide-in-from-bottom-4 transition-all active:scale-95"
           >
             <ShieldCheck className="w-5 h-5" />
             FINAL CONFIRMATION
@@ -504,8 +509,8 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
         )}
 
         {isRevealed && mode !== 'exam' && settings.explanationMode !== 'DISABLED' && (
-          <div className="mt-4 p-4 bg-[#F2F7FF] dark:bg-[#001E2F] rounded-2xl border border-[#D1E6FF] dark:border-[#004A77] animate-in fade-in slide-in-from-bottom-2">
-            <h4 className="text-[10px] font-extrabold text-[#0061A4] dark:text-[#D1E6FF] uppercase mb-2 flex items-center gap-1">
+          <div className="mt-4 p-4 bg-[#F2F7FF] dark:bg-[#001E2F] rounded-2xl border border-[var(--m3-primary-container)] dark:border-[#004A77] animate-in fade-in slide-in-from-bottom-2">
+            <h4 className="text-[10px] font-extrabold text-[var(--m3-primary)] dark:text-[var(--m3-primary-container)] uppercase mb-2 flex items-center gap-1">
               <Info className="w-3 h-3" /> Explanation 
               {settings.explanationMode === 'DELAYED' && <span className="text-[8px] opacity-60 ml-1">(Delayed Mode)</span>}
             </h4>

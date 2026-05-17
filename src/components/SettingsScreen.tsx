@@ -50,7 +50,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
  onClick={() => update({ themeMode: m })}
  className={`p-3 rounded-xl text-xs font-bold border-2 transition-all active:scale-95 ${
    settings.themeMode === m 
-     ? 'border-[var(--m3-primary)] bg-blue-50 text-[#0061A4] dark:bg-blue-900/40 dark:text-blue-200' 
+     ? 'border-[var(--m3-primary)] bg-blue-50 text-[var(--m3-primary)] dark:bg-blue-900/40 dark:text-blue-200' 
      : 'border-transparent bg-white dark:bg-gray-800 dark:text-gray-300'
  }`}
 >
@@ -71,7 +71,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                   <select 
                     value={settings.fontFamily}
                     onChange={(e) => update({ fontFamily: e.target.value as FontFamily })}
-                    className="bg-transparent text-xs font-bold focus:outline-none border-b-2 border-[#0061A4]"
+                    className="bg-transparent text-xs font-bold focus:outline-none border-b-2 border-[var(--m3-primary)]"
                   >
                     <option value="SANS_SERIF">Sans-serif</option>
                     <option value="DYSLEXIA">Dyslexia</option>
@@ -85,8 +85,8 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                   <div className="flex justify-between items-center text-[10px] text-gray-500 uppercase font-black tracking-widest">
                     <span>Adaptive Scale</span>
                     <div className="flex items-center gap-4">
-                       <span className="text-[#0061A4]">{settings.fontSize}px</span>
-                       <span className="text-[#0061A4] tracking-tighter">{settings.questionSpacing}em</span>
+                       <span className="text-[var(--m3-primary)]">{settings.fontSize}px</span>
+                       <span className="text-[var(--m3-primary)] tracking-tighter">{settings.questionSpacing}em</span>
                     </div>
                   </div>
                   <div className="space-y-6">
@@ -96,7 +96,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                             type="number" min="12" max="32" step="1"
                             value={settings.fontSize}
                             onChange={(e) => update({ fontSize: parseInt(e.target.value) })}
-                            className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[#0061A4] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[#0061A4]"
+                            className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[var(--m3-primary)] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[var(--m3-primary)]"
                         />
                     </div>
                     <div className="flex items-center gap-3">
@@ -105,7 +105,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                             type="number" min="1" max="3" step="0.1"
                             value={settings.questionSpacing}
                             onChange={(e) => update({ questionSpacing: parseFloat(e.target.value) })}
-                            className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[#0061A4] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[#0061A4]"
+                            className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[var(--m3-primary)] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[var(--m3-primary)]"
                         />
                     </div>
                   </div>
@@ -122,7 +122,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                      onClick={() => update({ readingDensity: d })}
                      className={`p-2 rounded-xl text-[10px] font-black tracking-widest border-2 transition-all active:scale-95 ${
                        settings.readingDensity === d 
-                         ? 'border-[#0061A4] bg-blue-50 text-[#0061A4] dark:bg-blue-900/40 dark:text-blue-200' 
+                         ? 'border-[var(--m3-primary)] bg-blue-50 text-[var(--m3-primary)] dark:bg-blue-900/40 dark:text-blue-200' 
                          : 'border-transparent bg-white dark:bg-gray-800'
                      }`}
                    >
@@ -141,7 +141,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                      onClick={() => update({ orientation: o })}
                      className={`p-2 rounded-xl text-[10px] font-black tracking-widest border-2 transition-all active:scale-95 ${
                        settings.orientation === o 
-                         ? 'border-[#0061A4] bg-blue-50 text-[#0061A4] dark:bg-blue-900/40 dark:text-blue-200' 
+                         ? 'border-[var(--m3-primary)] bg-blue-50 text-[var(--m3-primary)] dark:bg-blue-900/40 dark:text-blue-200' 
                          : 'border-transparent bg-white dark:bg-gray-800'
                      }`}
                    >
@@ -160,7 +160,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                     onClick={() => update({ colorMode: c })}
                     className={`p-3 rounded-xl text-xs font-bold border-2 transition-all flex items-center justify-between active:scale-[0.98] ${
                       settings.colorMode === c 
-                        ? 'border-[#0061A4] bg-blue-50 text-[#0061A4] dark:bg-blue-900/40' 
+                        ? 'border-[var(--m3-primary)] bg-blue-50 text-[var(--m3-primary)] dark:bg-blue-900/40' 
                         : 'border-transparent bg-white dark:bg-gray-800'
                     }`}
                   >
@@ -190,7 +190,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                      onClick={() => update({ answerTiming: t })}
                      className={`p-3 rounded-xl text-[10px] font-black tracking-widest border-2 transition-all active:scale-95 ${
                        settings.answerTiming === t 
-                         ? 'border-[#0061A4] bg-blue-50 text-[#0061A4] dark:bg-blue-900/40' 
+                         ? 'border-[var(--m3-primary)] bg-blue-50 text-[var(--m3-primary)] dark:bg-blue-900/40' 
                          : 'border-transparent bg-white dark:bg-gray-800 dark:text-gray-400'
                      }`}
                    >
@@ -210,7 +210,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                      onClick={() => update({ explanationMode: m })}
                      className={`p-2 rounded-xl text-[10px] font-black border-2 transition-all active:scale-95 ${
                        settings.explanationMode === m 
-                         ? 'border-[#0061A4] bg-blue-50 text-[#0061A4] dark:bg-blue-900/40' 
+                         ? 'border-[var(--m3-primary)] bg-blue-50 text-[var(--m3-primary)] dark:bg-blue-900/40' 
                          : 'border-transparent bg-white dark:bg-gray-800 dark:text-gray-400'
                      }`}
                    >
@@ -268,13 +268,13 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Mastery Threshold</span>
-                <span className="text-xs font-black text-[#0061A4]">{Math.round(settings.masteryThreshold * 100)}%</span>
+                <span className="text-xs font-black text-[var(--m3-primary)]">{Math.round(settings.masteryThreshold * 100)}%</span>
               </div>
               <input 
                 type="number" min="0.5" max="0.99" step="0.01"
                 value={settings.masteryThreshold}
                 onChange={(e) => update({ masteryThreshold: parseFloat(e.target.value) })}
-                className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[#0061A4] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[#0061A4]"
+                className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[var(--m3-primary)] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[var(--m3-primary)]"
               />
             </div>
 
@@ -285,7 +285,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                     type="number" 
                     value={settings.revisionQueueSize}
                     onChange={(e) => update({ revisionQueueSize: parseInt(e.target.value) })}
-                    className="bg-transparent text-xs font-black text-[#0061A4] w-12 text-right"
+                    className="bg-transparent text-xs font-black text-[var(--m3-primary)] w-12 text-right"
                  />
                </div>
                
@@ -298,7 +298,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                     type="number" step="0.1"
                     value={settings.repeatIntervalBase}
                     onChange={(e) => update({ repeatIntervalBase: parseFloat(e.target.value) })}
-                    className="bg-transparent text-xs font-black text-[#0061A4] w-12 text-right"
+                    className="bg-transparent text-xs font-black text-[var(--m3-primary)] w-12 text-right"
                  />
                </div>
 
@@ -311,7 +311,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                     type="number" step="0.1"
                     value={settings.easyIntervalModifier}
                     onChange={(e) => update({ easyIntervalModifier: parseFloat(e.target.value) })}
-                    className="bg-transparent text-xs font-black text-[#0061A4] w-12 text-right"
+                    className="bg-transparent text-xs font-black text-[var(--m3-primary)] w-12 text-right"
                  />
                </div>
 
@@ -324,7 +324,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                     type="number" step="0.1"
                     value={settings.hardIntervalModifier}
                     onChange={(e) => update({ hardIntervalModifier: parseFloat(e.target.value) })}
-                    className="bg-transparent text-xs font-black text-[#0061A4] w-12 text-right"
+                    className="bg-transparent text-xs font-black text-[var(--m3-primary)] w-12 text-right"
                  />
                </div>
 
@@ -424,7 +424,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
           </div>
           <div className="bg-white dark:bg-gray-900 p-6 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm space-y-6">
              <div className="space-y-2">
-                <h4 className="text-[10px] font-black uppercase text-[#0061A4] tracking-widest">OS Recommendation</h4>
+                <h4 className="text-[10px] font-black uppercase text-[var(--m3-primary)] tracking-widest">OS Recommendation</h4>
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-900/30">
                    <p className="text-[11px] text-gray-600 dark:text-gray-300 font-medium leading-relaxed">
                       Your device is currently running at <span className="font-bold text-emerald-600">Optimal Velocity</span>. 
@@ -457,9 +457,9 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
           </div>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
-                <button onClick={exportToCSV} className="p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col items-center gap-2 transition-all active:scale-95 shadow-sm hover:border-[#0061A4] group">
+                <button onClick={exportToCSV} className="p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col items-center gap-2 transition-all active:scale-95 shadow-sm hover:border-[var(--m3-primary)] group">
                     <Save className="w-5 h-5 text-blue-500 group-hover:scale-110 transition-transform" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#0061A4]">EXPORT CSV</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[var(--m3-primary)]">EXPORT CSV</span>
                 </button>
                 <button onClick={exportToAnki} className="p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex flex-col items-center gap-2 transition-all active:scale-95 shadow-sm hover:border-purple-500 group">
                     <Layers className="w-5 h-5 text-purple-500 group-hover:scale-110 transition-transform" />
@@ -487,7 +487,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                             alert('Backup verification failed.');
                         }
                     }}
-                    className="mt-2 px-6 py-2 bg-gray-100 dark:bg-gray-800 rounded-full text-[10px] font-black text-[#0061A4] uppercase tracking-widest active:scale-95 transition-all">
+                    className="mt-2 px-6 py-2 bg-gray-100 dark:bg-gray-800 rounded-full text-[10px] font-black text-[var(--m3-primary)] uppercase tracking-widest active:scale-95 transition-all">
                      Manual Verification
                   </button>
                </div>
@@ -503,7 +503,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
           </div>
           <div className="space-y-4">
             {settings.schedules.map((s) => (
-              <div key={s.id} className={`p-4 rounded-2xl border transition-all ${s.enabled ? 'bg-white dark:bg-gray-900 border-[#0061A4]/30 shadow-sm' : 'bg-gray-50/50 dark:bg-gray-800/30 opacity-60 border-transparent'}`}>
+              <div key={s.id} className={`p-4 rounded-2xl border transition-all ${s.enabled ? 'bg-white dark:bg-gray-900 border-[var(--m3-primary)]/30 shadow-sm' : 'bg-gray-50/50 dark:bg-gray-800/30 opacity-60 border-transparent'}`}>
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className={`p-2 rounded-lg ${s.type === 'TEST' ? 'bg-red-50 text-red-600' : s.type === 'REVISION' ? 'bg-purple-50 text-purple-600' : 'bg-blue-50 text-blue-600'}`}>
@@ -513,7 +513,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                   </div>
                   <button 
                     onClick={() => updateSchedule(s.id, { enabled: !s.enabled })}
-                    className={`w-10 h-5 rounded-full relative transition-colors ${s.enabled ? 'bg-[#0061A4]' : 'bg-gray-200 dark:bg-gray-700'}`}
+                    className={`w-10 h-5 rounded-full relative transition-colors ${s.enabled ? 'bg-[var(--m3-primary)]' : 'bg-gray-200 dark:bg-gray-700'}`}
                   >
                     <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${s.enabled ? 'left-[22px]' : 'left-0.5'}`} />
                   </button>
@@ -527,7 +527,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                                     type="time" 
                                     value={s.time}
                                     onChange={(e) => updateSchedule(s.id, { time: e.target.value })}
-                                    className="bg-transparent text-[10px] font-black text-[#0061A4] focus:outline-none"
+                                    className="bg-transparent text-[10px] font-black text-[var(--m3-primary)] focus:outline-none"
                                 />
                             </div>
                             <div className="flex items-center gap-2 bg-gray-50 dark:bg-black rounded-xl p-2 border border-gray-100 dark:border-gray-800">
@@ -536,7 +536,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                                     type="number" 
                                     value={s.questionCount}
                                     onChange={(e) => updateSchedule(s.id, { questionCount: parseInt(e.target.value) })}
-                                    className="bg-transparent text-[10px] font-black text-[#0061A4] focus:outline-none w-8 text-center"
+                                    className="bg-transparent text-[10px] font-black text-[var(--m3-primary)] focus:outline-none w-8 text-center"
                                 />
                             </div>
                         </div>
@@ -548,7 +548,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                                         const nextDays = s.days.includes(i) ? s.days.filter(d => d !== i) : [...s.days, i];
                                         updateSchedule(s.id, { days: nextDays });
                                     }}
-                                    className={`w-6 h-6 rounded-md text-[9px] font-black flex items-center justify-center transition-all ${s.days.includes(i) ? 'bg-[#0061A4] text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'}`}
+                                    className={`w-6 h-6 rounded-md text-[9px] font-black flex items-center justify-center transition-all ${s.days.includes(i) ? 'bg-[var(--m3-primary)] text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400'}`}
                                 >
                                     {day}
                                 </button>
@@ -561,7 +561,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                         <div className="flex flex-wrap gap-2">
                             <button
                                 onClick={() => updateSchedule(s.id, { deckIds: [] })}
-                                className={`px-2 py-1 rounded-lg text-[9px] font-black border transition-all ${s.deckIds.length === 0 ? 'bg-[#0061A4] text-white border-[#0061A4]' : 'bg-gray-50 dark:bg-gray-800 text-gray-500 border-transparent hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                                className={`px-2 py-1 rounded-lg text-[9px] font-black border transition-all ${s.deckIds.length === 0 ? 'bg-[var(--m3-primary)] text-white border-[var(--m3-primary)]' : 'bg-gray-50 dark:bg-gray-800 text-gray-500 border-transparent hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                             >
                                 ALL MASTER DECKS
                             </button>
@@ -574,7 +574,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                                             : [...s.deckIds, d.id];
                                         updateSchedule(s.id, { deckIds: next });
                                     }}
-                                    className={`px-2 py-1 rounded-lg text-[9px] font-black border transition-all ${s.deckIds.includes(d.id) ? 'bg-[#0061A4] text-white border-[#0061A4]' : 'bg-gray-50 dark:bg-gray-800 text-gray-500 border-transparent hover:bg-gray-200'}`}
+                                    className={`px-2 py-1 rounded-lg text-[9px] font-black border transition-all ${s.deckIds.includes(d.id) ? 'bg-[var(--m3-primary)] text-white border-[var(--m3-primary)]' : 'bg-gray-50 dark:bg-gray-800 text-gray-500 border-transparent hover:bg-gray-200'}`}
                                 >
                                     {d.name.toUpperCase()}
                                 </button>
@@ -642,7 +642,7 @@ function SettingToggle({ label, description, checked, onChange, icon }: { label:
       </div>
       <button 
         onClick={() => onChange(!checked)}
-        className={`w-12 h-6 mt-1 rounded-full relative transition-colors duration-300 flex-shrink-0 ${checked ? 'bg-[#0061A4]' : 'bg-gray-300 dark:bg-gray-700'}`}
+        className={`w-12 h-6 mt-1 rounded-full relative transition-colors duration-300 flex-shrink-0 ${checked ? 'bg-[var(--m3-primary)]' : 'bg-gray-300 dark:bg-gray-700'}`}
       >
         <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full transition-all duration-300 ${checked ? 'left-[26px]' : 'left-0.5'}`} />
       </button>

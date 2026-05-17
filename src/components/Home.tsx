@@ -64,12 +64,7 @@ export default function Home({ selectedDeck, settings, onOpenMenu, onStartSessio
     return diff > 0 && diff < 14 * 24 * 60 * 60 * 1000; // 14 days before
   }, [settings.examDate]);
 
-  const reminders = useMemo(() => {
-    const list = [];
-    if (dueCount && dueCount > 20) list.push(`${dueCount} revision items pending.`);
-    if (isPreExam) list.push("Priority: Weak topics (Pre-Exam Protocol active).");
-    return list;
-  }, [dueCount, isPreExam]);
+
 
   const weakConcepts = useLiveQuery(async () => {
     try {
@@ -139,40 +134,29 @@ export default function Home({ selectedDeck, settings, onOpenMenu, onStartSessio
         </div>
       </header>
 
-      {reminders.length > 0 && (
-          <section className="animate-in fade-in slide-in-from-top-4 duration-500">
-              {reminders.map((r, i) => (
-                  <div key={i} className="flex items-center gap-3 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 rounded-2xl mb-2">
-                      <AlertCircle className="w-4 h-4 text-orange-600" />
-                      <p className="text-[11px] font-black text-orange-800 dark:text-orange-200 uppercase tracking-tight">{r}</p>
-                  </div>
-              ))}
-          </section>
-      )}
-
-      <section className="bg-[#F2F7FF] dark:bg-[#001E2F] p-6 rounded-3xl border border-[#D1E6FF] dark:border-[#004A77] relative overflow-hidden group">
+      <section className="bg-[#F3FFF5] dark:bg-[#002206] p-6 rounded-3xl border border-[#008A24]/30 dark:border-[#B4F0B7]/30 relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-            <Zap className="w-24 h-24 text-blue-500" />
+            <Zap className="w-24 h-24 text-[#008A24] dark:text-[#B4F0B7]" />
         </div>
-        <h3 className="text-xs font-black text-[var(--m3-primary)] dark:text-[#D1E6FF] tracking-widest uppercase mb-1">Active Protocol</h3>
+        <h3 className="text-xs font-black text-[#008A24] dark:text-[#B4F0B7] tracking-widest uppercase mb-1">Active Protocol</h3>
         <div className="flex items-baseline gap-2 mb-4">
           <span className="text-5xl font-black tracking-tighter dark:text-white">{dueCount ?? 0}</span>
           <span className="text-xs font-bold text-[#535F70] dark:text-[#C0C7D5] uppercase tracking-widest">Pending</span>
         </div>
         
         <div className="w-full bg-[#E0E2EC] dark:bg-[#44474E] h-1.5 rounded-full overflow-hidden mb-4">
-          <div className="bg-[#0061A4] dark:bg-[#D1E6FF] h-full transition-all duration-1000" style={{ width: dueCount ? `${Math.min(100, (dueCount/50)*100)}%` : '5%' }} />
+          <div className="bg-[#008A24] dark:bg-[#B4F0B7] h-full transition-all duration-1000" style={{ width: dueCount ? `${Math.min(100, (dueCount/50)*100)}%` : '5%' }} />
         </div>
 
         {activeSchedule && (
-            <div className="flex items-center gap-4 pt-3 border-t border-[#D1E6FF]/50 dark:border-[#004A77]/50">
+            <div className="flex items-center gap-4 pt-3 border-t border-[#008A24]/20 dark:border-[#B4F0B7]/20">
                 <div className="flex items-center gap-2">
-                    <Clock className="w-3 h-3 text-[#0061A4] dark:text-[#D1E6FF]" />
-                    <span className="text-[10px] font-black dark:text-blue-100 uppercase">{activeSchedule.time}</span>
+                    <Clock className="w-3 h-3 text-[#008A24] dark:text-[#B4F0B7]" />
+                    <span className="text-[10px] font-black dark:text-green-100 uppercase">{activeSchedule.time}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Zap className="w-3 h-3 text-[#0061A4] dark:text-[#D1E6FF]" />
-                    <span className="text-[10px] font-black dark:text-blue-100 uppercase">{activeSchedule.type}</span>
+                    <Zap className="w-3 h-3 text-[#008A24] dark:text-[#B4F0B7]" />
+                    <span className="text-[10px] font-black dark:text-green-100 uppercase">{activeSchedule.type}</span>
                 </div>
             </div>
         )}
@@ -210,8 +194,8 @@ export default function Home({ selectedDeck, settings, onOpenMenu, onStartSessio
             {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
                 <div key={i} className="flex flex-col items-center gap-1 flex-1 min-w-[32px]">
                     <span className="text-[9px] font-bold text-gray-400">{day}</span>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${i < 4 ? 'bg-[#D1E6FF] border-[#0061A4] dark:bg-[#004A77]' : 'bg-transparent border-gray-100 dark:border-gray-800'}`}>
-                        {i < 4 && <Zap className="w-3 h-3 text-[#0061A4] dark:text-[#D1E6FF]" />}
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${i < 4 ? 'bg-[var(--m3-primary-container)] border-[var(--m3-primary)] dark:bg-[#004A77]' : 'bg-transparent border-gray-100 dark:border-gray-800'}`}>
+                        {i < 4 && <Zap className="w-3 h-3 text-[var(--m3-primary)] dark:text-[var(--m3-primary-container)]" />}
                     </div>
                 </div>
             ))}
@@ -221,7 +205,6 @@ export default function Home({ selectedDeck, settings, onOpenMenu, onStartSessio
       <section>
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xs font-bold text-[#535F70] dark:text-[#C0C7D5] tracking-widest uppercase">Weak Concepts</h3>
-          <AlertCircle className="w-4 h-4 text-[#BA1A1A] dark:text-[#FFB4AB]" />
         </div>
         <div className="space-y-3">
           {weakConcepts?.length ? weakConcepts.map(c => (
@@ -238,7 +221,7 @@ export default function Home({ selectedDeck, settings, onOpenMenu, onStartSessio
       <div className="mt-auto flex flex-col gap-3">
         <button 
           onClick={() => handleStartSession('revision')}
-          className="w-full bg-[#0061A4] dark:bg-[#D1E6FF] text-white dark:text-[#003258] py-5 rounded-2xl font-bold text-lg shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 hover:brightness-110"
+          className="w-full bg-[var(--m3-primary)] dark:bg-[var(--m3-primary-container)] text-white dark:text-[#003258] py-5 rounded-2xl font-bold text-lg shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 hover:brightness-110"
         >
           <Play className="w-5 h-5 fill-current" />
           START SESSION
@@ -246,14 +229,14 @@ export default function Home({ selectedDeck, settings, onOpenMenu, onStartSessio
         <div className="flex gap-3">
            <button 
              onClick={() => handleStartSession('exam')}
-             className="flex-1 bg-white dark:bg-gray-800 text-[#0061A4] dark:text-[#D1E6FF] py-3 font-semibold text-sm hover:brightness-95 rounded-xl transition-colors border border-[#D1E6FF] dark:border-[#004A77] flex items-center justify-center gap-2"
+             className="flex-1 bg-white dark:bg-gray-800 text-[var(--m3-primary)] dark:text-[var(--m3-primary-container)] py-3 font-semibold text-sm hover:brightness-95 rounded-xl transition-colors border border-[var(--m3-primary-container)] dark:border-[#004A77] flex items-center justify-center gap-2"
            >
              <Zap className="w-4 h-4" />
              EXAM MODE
            </button>
           <button 
             onClick={onAddQuestion}
-            className="flex-1 bg-white dark:bg-gray-800 text-[#0061A4] dark:text-[#D1E6FF] py-3 font-semibold text-sm hover:brightness-95 rounded-xl transition-colors border border-[#D1E6FF] dark:border-[#004A77] flex items-center justify-center gap-2"
+            className="flex-1 bg-white dark:bg-gray-800 text-[var(--m3-primary)] dark:text-[var(--m3-primary-container)] py-3 font-semibold text-sm hover:brightness-95 rounded-xl transition-colors border border-[var(--m3-primary-container)] dark:border-[#004A77] flex items-center justify-center gap-2"
           >
             <PlusCircle className="w-4 h-4" />
             ADD TOPIC

@@ -166,7 +166,7 @@ export default function AddQuestion({ onBack }: AddQuestionProps) {
             value={conceptName}
             onChange={(e) => setConceptName(e.target.value)}
             placeholder="e.g., Valve dynamics"
-            className="w-full p-4 bg-gray-50 dark:bg-gray-900 border border-[#E0E2EC] dark:border-[#44474E] rounded-2xl focus:ring-2 focus:ring-[#0061A4] outline-none dark:text-white"
+            className="w-full p-4 bg-gray-50 dark:bg-gray-900 border border-[#E0E2EC] dark:border-[#44474E] rounded-2xl focus:ring-2 focus:ring-[var(--m3-primary)] outline-none dark:text-white"
           />
           <datalist id="concepts-list">
             {concepts.map(c => <option key={c.id} value={c.name} />)}
@@ -182,7 +182,7 @@ export default function AddQuestion({ onBack }: AddQuestionProps) {
             value={questionText}
             onChange={(e) => setQuestionText(e.target.value)}
             placeholder="Type your question here..."
-            className="w-full p-4 bg-gray-50 dark:bg-gray-900 border border-[#E0E2EC] dark:border-[#44474E] rounded-2xl h-32 resize-none focus:ring-2 focus:ring-[#0061A4] outline-none dark:text-white"
+            className="w-full p-4 bg-gray-50 dark:bg-gray-900 border border-[#E0E2EC] dark:border-[#44474E] rounded-2xl h-32 resize-none focus:ring-2 focus:ring-[var(--m3-primary)] outline-none dark:text-white"
           />
         </div>
 
@@ -214,7 +214,7 @@ export default function AddQuestion({ onBack }: AddQuestionProps) {
                     setOptions(newOpts);
                   }}
                   placeholder={`Option ${String.fromCharCode(65 + idx)}`}
-                  className="flex-1 p-4 bg-gray-50 dark:bg-gray-900 border border-[#E0E2EC] dark:border-[#44474E] rounded-2xl focus:ring-2 focus:ring-[#0061A4] outline-none dark:text-white"
+                  className="flex-1 p-4 bg-gray-50 dark:bg-gray-900 border border-[#E0E2EC] dark:border-[#44474E] rounded-2xl focus:ring-2 focus:ring-[var(--m3-primary)] outline-none dark:text-white"
                 />
               </div>
             ))}
@@ -230,7 +230,7 @@ export default function AddQuestion({ onBack }: AddQuestionProps) {
             value={explanation}
             onChange={(e) => setExplanation(e.target.value)}
             placeholder="Explain the correct answer..."
-            className="w-full p-4 bg-gray-50 dark:bg-gray-900 border border-[#E0E2EC] dark:border-[#44474E] rounded-2xl h-24 resize-none focus:ring-2 focus:ring-[#0061A4] outline-none dark:text-white"
+            className="w-full p-4 bg-gray-50 dark:bg-gray-900 border border-[#E0E2EC] dark:border-[#44474E] rounded-2xl h-24 resize-none focus:ring-2 focus:ring-[var(--m3-primary)] outline-none dark:text-white"
           />
         </div>
 
@@ -238,7 +238,7 @@ export default function AddQuestion({ onBack }: AddQuestionProps) {
           <button 
             type="submit"
             disabled={isSaving}
-            className="w-full bg-[#0061A4] dark:bg-[#D1E6FF] text-white dark:text-[#003258] py-5 rounded-2xl font-bold text-lg shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 hover:brightness-110 disabled:opacity-50"
+            className="w-full bg-[var(--m3-primary)] dark:bg-[var(--m3-primary-container)] text-white dark:text-[#003258] py-5 rounded-2xl font-bold text-lg shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 hover:brightness-110 disabled:opacity-50"
           >
             {isSaving ? 'SAVING...' : (
               <>

@@ -48,7 +48,7 @@ export default function Sidebar({ isOpen, onClose, onSelectDeck, selectedDeckId,
                 onClick={() => onSelectDeck(null)}
                 className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${
                   selectedDeckId === null
-                    ? 'bg-[#D1E6FF] text-[#001E2F] dark:bg-[#004A77] dark:text-[#D1E6FF] font-bold'
+                    ? 'bg-[var(--m3-primary-container)] text-[#001E2F] dark:bg-[#004A77] dark:text-[var(--m3-primary-container)] font-bold'
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300'
                 }`}
               >
@@ -66,7 +66,7 @@ export default function Sidebar({ isOpen, onClose, onSelectDeck, selectedDeckId,
                   onClick={() => onSelectDeck(deck.id)}
                   className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all ${
                     selectedDeckId === deck.id
-                      ? 'bg-[#D1E6FF] text-[#001E2F] dark:bg-[#004A77] dark:text-[#D1E6FF] font-bold'
+                      ? 'bg-[var(--m3-primary-container)] text-[#001E2F] dark:bg-[#004A77] dark:text-[var(--m3-primary-container)] font-bold'
                       : 'hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300'
                   }`}
                 >

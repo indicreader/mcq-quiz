@@ -115,7 +115,7 @@ export default function Stats({ onBack }: { onBack: () => void }) {
                  <Award className="w-4 h-4 text-orange-500" />
                  Achievement Badges
              </h3>
-             <span className="text-[10px] font-black text-[#0061A4]">{earnedBadges.length} Earned</span>
+             <span className="text-[10px] font-black text-[var(--m3-primary)]">{earnedBadges.length} Earned</span>
           </div>
           <div className="flex gap-3 overflow-x-auto pb-4 px-2 no-scrollbar">
              {earnedBadges.length > 0 ? earnedBadges.map(badge => (
@@ -134,7 +134,7 @@ export default function Stats({ onBack }: { onBack: () => void }) {
 
         <section className="grid grid-cols-2 gap-4">
           <StatCard 
-            icon={<Target className="w-4 h-4 text-[#0061A4] dark:text-[#D1E6FF]" />}
+            icon={<Target className="w-4 h-4 text-[var(--m3-primary)] dark:text-[var(--m3-primary-container)]" />}
             label="Mastery" 
             value={`${totalConcepts ? Math.round(((masteredConcepts || 0) / totalConcepts) * 100) : 0}%`} 
           />
@@ -158,7 +158,7 @@ export default function Stats({ onBack }: { onBack: () => void }) {
         <section>
           <div className="flex justify-between items-center mb-4">
               <h3 className="text-xs font-black text-[#535F70] dark:text-[#C0C7D5] tracking-widest uppercase flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-[#0061A4]" />
+                  <Activity className="w-4 h-4 text-[var(--m3-primary)]" />
                   Mastery Heatmap
               </h3>
               <span className="text-[10px] text-gray-400 font-bold">Last 90 Days</span>
@@ -167,14 +167,14 @@ export default function Stats({ onBack }: { onBack: () => void }) {
             <div className="grid grid-cols-18 gap-1">
                 {heatmapData90.map((val, i) => {
                 let colorClass = 'bg-gray-100 dark:bg-gray-800';
-                if (val > 10) colorClass = 'bg-[#0061A4] dark:bg-[#D1E6FF]';
+                if (val > 10) colorClass = 'bg-[var(--m3-primary)] dark:bg-[var(--m3-primary-container)]';
                 else if (val > 5) colorClass = 'bg-[#4396D7] dark:bg-[#4396D7]';
-                else if (val > 0) colorClass = 'bg-[#D1E6FF] dark:bg-[#004A77]';
+                else if (val > 0) colorClass = 'bg-[var(--m3-primary-container)] dark:bg-[#004A77]';
                 
                 return (
                     <div 
                     key={i} 
-                    className={`aspect-square rounded-sm ${colorClass} transition-colors hover:ring-1 ring-[#0061A4]`}
+                    className={`aspect-square rounded-sm ${colorClass} transition-colors hover:ring-1 ring-[var(--m3-primary)]`}
                     title={`${val} reviews`}
                     />
                 );
