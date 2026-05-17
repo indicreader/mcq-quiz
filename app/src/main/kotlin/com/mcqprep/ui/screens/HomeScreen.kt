@@ -11,23 +11,81 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import com.mcqprep.data.local.dao.ConceptDao
+import com.mcqprep.data.local.entity.DeckEntity
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+fun HomeScreen(navController: NavController, conceptDao: ConceptDao) {
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val decks by conceptDao.getAllDecks().collectAsState(initial = emptyList())
+    var selectedDeckId by remember { mutableStateOf<String?>(null) }
+    val selectedDeckName = decks.find { it.id == selectedDeckId }?.name ?: "Master Deck"
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(Modifier.height(12.dp))
+                NavigationDrawerItem(
+                    label = { Text("Master Deck") },
+                    selected = selectedDeckId == null,
+                    onClick = { 
+                        selectedDeckId = null
+                        scope.launch { drawerState.close() }
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                Divider(Modifier.padding(vertical = 8.dp))
+                Text(
+                    "My Subjects",
+                    modifier = Modifier.padding(horizontal = 28.dp, vertical = 16.dp),
+                    style = MaterialTheme.typography.titleSmall
+                )
+                decks.forEach { deck ->
+                    NavigationDrawerItem(
+                        label = { Text(deck.name) },
+                        selected = selectedDeckId == deck.id,
+                        onClick = { 
+                            selectedDeckId = deck.id
+                            scope.launch { drawerState.close() }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                }
+            }
+        }
     ) {
-        // App Header
-        Text(
-            text = "mcq-prep",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.align(Alignment.Start)
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            // App Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                    Icon(Icons.Default.Menu, null)
+                }
+                Column {
+                    Text(
+                        text = selectedDeckName,
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = if (selectedDeckId == null) "All Subjects" else "Single Subject",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -114,7 +172,10 @@ fun HomeScreen(navController: NavController) {
 
         // Primary CTA
         Button(
-            onClick = { navController.navigate("session/revision") },
+            onClick = { 
+                val route = if (selectedDeckId != null) "session/revision?deckId=$selectedDeckId" else "session/revision"
+                navController.navigate(route) 
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(64.dp),
@@ -122,10 +183,23 @@ fun HomeScreen(navController: NavController) {
         ) {
             Text(text = "START SESSION", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
         }
+
+        OutlinedButton(
+            onClick = { navController.navigate("add") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Icon(Icons.Default.Add, contentDescription = null)
+            Spacer(Modifier.width(8.dp))
+            Text(text = "ADD QUESTION")
+        }
         
         TextButton(onClick = { navController.navigate("stats") }) {
             Text(text = "VIEW FULL STATISTICS")
         }
+    }
     }
 }
 

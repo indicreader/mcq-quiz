@@ -1,37 +1,78 @@
 import React from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '../lib/db';
-import { Flame, Play, BarChart2, BookOpen, AlertCircle, Settings } from 'lucide-react';
+import { db, type Deck } from '../lib/db';
+import { Menu, Flame, Play, BarChart2, BookOpen, AlertCircle, Settings, Zap, Hash } from 'lucide-react';
 
 interface HomeProps {
+  selectedDeck?: Deck;
+  onOpenMenu: () => void;
   onStartSession: (mode: 'practice' | 'revision' | 'exam') => void;
   onViewStats: () => void;
   onOpenSettings: () => void;
+  onAddQuestion: () => void;
 }
 
-export default function Home({ onStartSession, onViewStats, onOpenSettings }: HomeProps) {
-  const dueCount = useLiveQuery(() => {
+export default function Home({ selectedDeck, onOpenMenu, onStartSession, onViewStats, onOpenSettings, onAddQuestion }: HomeProps) {
+  const dueCount = useLiveQuery(async () => {
     try {
+      if (selectedDeck) {
+        const subjects = await db.subjects.where('deckId').equals(selectedDeck.id).toArray();
+        const subjectIds = subjects.map(s => s.id);
+        const topics = await db.topics.where('subjectId').anyOf(subjectIds).toArray();
+        const topicIds = topics.map(t => t.id);
+        
+        return db.concepts
+          .where('nextReview').belowOrEqual(Date.now())
+          .filter(c => topicIds.includes(c.topicId))
+          .count();
+      }
       return db.concepts.where('nextReview').belowOrEqual(Date.now()).count();
     } catch (e) {
       return 0;
     }
-  });
+  }, [selectedDeck]);
 
-  const weakConcepts = useLiveQuery(() => {
+  const weakConcepts = useLiveQuery(async () => {
     try {
+      if (selectedDeck) {
+        const subjects = await db.subjects.where('deckId').equals(selectedDeck.id).toArray();
+        const subjectIds = subjects.map(s => s.id);
+        const topics = await db.topics.where('subjectId').anyOf(subjectIds).toArray();
+        const topicIds = topics.map(t => t.id);
+
+        return db.concepts
+          .where('isLeech').equals(1)
+          .filter(c => topicIds.includes(c.topicId))
+          .limit(3)
+          .toArray();
+      }
       return db.concepts.where('isLeech').equals(1).limit(3).toArray();
     } catch (e) {
       return [];
     }
-  });
+  }, [selectedDeck]);
 
   const isLoading = dueCount === undefined;
 
   return (
     <div className="p-6 flex flex-col h-full gap-8">
       <header className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tight text-[#1B1B1F] dark:text-[#E3E2E6]">mcq-prep</h1>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={onOpenMenu}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors active:scale-95"
+          >
+            <Menu className="w-6 h-6 text-[#1B1B1F] dark:text-[#E3E2E6]" />
+          </button>
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-bold tracking-tight text-[#1B1B1F] dark:text-[#E3E2E6]">
+              {selectedDeck ? selectedDeck.name : 'mcq-prep'}
+            </h1>
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">
+              {selectedDeck ? 'Single Subject' : 'Master Deck'}
+            </span>
+          </div>
+        </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-[#F4F4F9] dark:bg-gray-800 px-3 py-1.5 rounded-full">
             <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
@@ -95,12 +136,20 @@ export default function Home({ onStartSession, onViewStats, onOpenSettings }: Ho
           <Play className="w-5 h-5 fill-current" />
           START SESSION
         </button>
-        <button 
-          onClick={onViewStats}
-          className="w-full text-[#0061A4] dark:text-[#D1E6FF] py-3 font-semibold text-sm hover:bg-[#F2F7FF] dark:hover:bg-[#001E2F] rounded-xl transition-colors"
-        >
-          VIEW FULL STATISTICS
-        </button>
+        <div className="flex gap-3">
+          <button 
+            onClick={onViewStats}
+            className="flex-1 text-[#0061A4] dark:text-[#D1E6FF] py-3 font-semibold text-sm hover:bg-[#F2F7FF] dark:hover:bg-[#001E2F] rounded-xl transition-colors border border-[#D1E6FF] dark:border-[#004A77]"
+          >
+            STATISTICS
+          </button>
+          <button 
+            onClick={onAddQuestion}
+            className="flex-1 bg-[#F2F7FF] dark:bg-[#001E2F] text-[#0061A4] dark:text-[#D1E6FF] py-3 font-semibold text-sm hover:brightness-95 rounded-xl transition-colors border border-[#D1E6FF] dark:border-[#004A77] flex items-center justify-center gap-2"
+          >
+            ADD QUESTION
+          </button>
+        </div>
       </div>
     </div>
   );

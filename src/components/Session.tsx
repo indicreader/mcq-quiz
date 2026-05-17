@@ -8,25 +8,37 @@ import remarkGfm from 'remark-gfm';
 
 interface SessionProps {
   mode: 'practice' | 'revision' | 'exam';
+  deckId?: string;
   onFinish: () => void;
   onBack: () => void;
 }
 
-export default function Session({ mode, onFinish, onBack }: SessionProps) {
+export default function Session({ mode, deckId, onFinish, onBack }: SessionProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
   
   // Use live query to get due concepts
-  const dueConcepts = useLiveQuery(() => {
+  const dueConcepts = useLiveQuery(async () => {
     try {
-      return db.concepts.where('nextReview').belowOrEqual(Date.now()).toArray();
+      let query = db.concepts.where('nextReview').belowOrEqual(Date.now());
+      let results = await query.toArray();
+
+      if (deckId) {
+        const subjects = await db.subjects.where('deckId').equals(deckId).toArray();
+        const subjectIds = subjects.map(s => s.id);
+        const topics = await db.topics.where('subjectId').anyOf(subjectIds).toArray();
+        const topicIds = topics.map(t => t.id);
+        results = results.filter(c => topicIds.includes(c.topicId));
+      }
+      
+      return results;
     } catch (e) {
       console.error("dueConcepts Query Error:", e);
       return [];
     }
-  });
+  }, [deckId]);
 
   const currentConcept = dueConcepts?.[currentIndex];
   

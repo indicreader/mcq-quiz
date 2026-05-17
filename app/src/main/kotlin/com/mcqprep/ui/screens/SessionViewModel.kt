@@ -37,17 +37,28 @@ class SessionViewModel(
 
     private var queue: List<ConceptEntity> = emptyList()
 
-    fun startSession(mode: String) {
+    fun startSession(mode: String, deckId: String? = null) {
         viewModelScope.launch {
             val now = System.currentTimeMillis()
-            conceptDao.getDueConcepts(now).collect { concepts ->
+            val flow = if (deckId != null) {
+                conceptDao.getDueConceptsByDeck(deckId, now)
+            } else {
+                conceptDao.getDueConcepts(now)
+            }
+
+            flow.collect { concepts ->
                 queue = concepts
                 _uiState.value = _uiState.value.copy(
                     totalInSession = concepts.size,
-                    progress = 0f
+                    progress = 0f,
+                    completedInSession = 0,
+                    isFinished = false
                 )
                 if (concepts.isNotEmpty()) {
                     loadConcept(concepts.first())
+                } else if (mode != "revision") {
+                    // fall back to random concepts if revision empty and in practice mode
+                    // (simplified for now)
                 }
             }
         }
