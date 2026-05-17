@@ -3,6 +3,7 @@ package com.mcqprep.data.local
 import androidx.room.*
 import com.mcqprep.data.local.entity.*
 import com.mcqprep.data.local.dao.*
+import java.util.Date
 
 @Database(
     entities = [
