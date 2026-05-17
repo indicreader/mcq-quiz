@@ -520,29 +520,43 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
           </button>
         ) : (
           <div className="flex flex-col gap-4">
-            {settings.confidenceRatingEnabled && mode !== 'exam' && (
-              <div className="flex gap-2">
-                {[
-                  { label: 'Again', color: 'bg-[#BA1A1A] text-white', val: 1 },
-                  { label: 'Hard', color: 'bg-[#FFB4A9] text-[#410002] dark:bg-[#FFB4AB] dark:text-[#690005]', val: 2 },
-                  { label: 'Good', color: 'bg-[#D1E6FF] text-[#001E2F] dark:bg-[#004A77] dark:text-[#D1E6FF]', val: 3 },
-                  { label: 'Easy', color: 'bg-[#B4F0B7] text-[#002107] dark:bg-[#005314] dark:text-[#B4F0B7]', val: 4 },
-                ].map(r => (
-                  <button
-                    key={r.val}
-                    onClick={() => handleRate(r.val)}
-                    className={`flex-1 py-3 px-1 rounded-xl text-[10px] font-bold uppercase tracking-tighter transition-transform active:scale-95 ${r.color}`}
+            {mode !== 'exam' && (() => {
+              const selectedOption = shuffledOptions.find(o => o.id === selectedOptionId);
+              const isCorrect = selectedOption?.isCorrect || false;
+
+              if (isCorrect) {
+                return (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleRate(2)}
+                      className="flex-1 py-3 px-1 rounded-xl text-[10px] font-bold uppercase tracking-tighter transition-transform active:scale-95 bg-[#FFB4A9] text-[#410002] dark:bg-[#FFB4AB] dark:text-[#690005]"
+                    >
+                      Hard
+                    </button>
+                    <button
+                      onClick={() => handleRate(4)}
+                      className="flex-1 py-3 px-1 rounded-xl text-[10px] font-bold uppercase tracking-tighter transition-transform active:scale-95 bg-[#B4F0B7] text-[#002107] dark:bg-[#005314] dark:text-[#B4F0B7]"
+                    >
+                      Easy
+                    </button>
+                  </div>
+                );
+              } else {
+                return (
+                  <button 
+                    onClick={() => handleRate(1)}
+                    className="w-full py-4 bg-[var(--m3-primary)] text-[var(--m3-on-primary)] rounded-2xl font-bold uppercase tracking-widest transition-all active:scale-95"
                   >
-                    {r.label}
+                    Next Question
                   </button>
-                ))}
-              </div>
-            )}
+                );
+              }
+            })()}
             
-            {(!settings.confidenceRatingEnabled || mode === 'exam') && (
+            {mode === 'exam' && (
               <button 
                 onClick={() => handleRate(3)}
-                className="w-full py-4 bg-[#0061A4] text-white rounded-2xl font-bold uppercase tracking-widest transition-all active:scale-95"
+                className="w-full py-4 bg-[var(--m3-primary)] text-[var(--m3-on-primary)] rounded-2xl font-bold uppercase tracking-widest transition-all active:scale-95"
               >
                 Next Question
               </button>
