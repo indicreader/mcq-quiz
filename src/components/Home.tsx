@@ -154,7 +154,7 @@ export default function Home({ selectedDeck, settings, onOpenMenu, onStartSessio
         <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
             <Zap className="w-24 h-24 text-blue-500" />
         </div>
-        <h3 className="text-xs font-black text-[#0061A4] dark:text-[#D1E6FF] tracking-widest uppercase mb-1">Active Protocol</h3>
+        <h3 className="text-xs font-black text-[var(--m3-primary)] dark:text-[#D1E6FF] tracking-widest uppercase mb-1">Active Protocol</h3>
         <div className="flex items-baseline gap-2 mb-4">
           <span className="text-5xl font-black tracking-tighter dark:text-white">{dueCount ?? 0}</span>
           <span className="text-xs font-bold text-[#535F70] dark:text-[#C0C7D5] uppercase tracking-widest">Pending</span>

@@ -148,7 +148,7 @@ export default function AddQuestion({ onBack }: AddQuestionProps) {
             value={deckName}
             onChange={(e) => setDeckName(e.target.value)}
             placeholder="e.g., Cardiology, Physics"
-            className="w-full p-4 bg-gray-50 dark:bg-gray-900 border border-[#E0E2EC] dark:border-[#44474E] rounded-2xl focus:ring-2 focus:ring-[#0061A4] outline-none dark:text-white"
+            className="w-full p-4 bg-gray-50 dark:bg-gray-900 border border-[#E0E2EC] dark:border-[#44474E] rounded-2xl focus:ring-2 focus:ring-[var(--m3-primary)] outline-none dark:text-white"
           />
           <datalist id="decks-list">
             {decks.map(d => <option key={d.id} value={d.name} />)}

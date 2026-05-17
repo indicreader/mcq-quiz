@@ -79,7 +79,7 @@ export default function Stats({ onBack }: { onBack: () => void }) {
 
       <main className="p-6 overflow-y-auto flex flex-col gap-8">
         {/* Weekly Summary */}
-        <section className="bg-gradient-to-br from-[#0061A4] to-[#004A77] p-6 rounded-3xl text-white shadow-xl">
+        <section className="bg-gradient-to-br from-[var(--m3-primary)] to-[#004A77] p-6 rounded-3xl text-white shadow-xl">
            <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-2">
                     <BarChart3 className="w-4 h-4 text-blue-200" />

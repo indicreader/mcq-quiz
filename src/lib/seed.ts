@@ -22,16 +22,16 @@ export async function seedData() {
   await db.decks.put({
     id: deckId,
     name: 'Full Test Deck',
-    description: '30 questions each of History, Polity, Reasoning, English',
+    description: '30 questions each of English, Maths, Reasoning, and GK/GS',
     version: '1.0',
     createdAt: Date.now()
   });
 
   const subjectsData = [
-    { id: 'history-sub', name: 'History' },
-    { id: 'polity-sub', name: 'Polity' },
+    { id: 'english-sub', name: 'English' },
+    { id: 'maths-sub', name: 'Maths' },
     { id: 'reasoning-sub', name: 'Reasoning' },
-    { id: 'english-sub', name: 'English' }
+    { id: 'gkgs-sub', name: 'GK & GS' }
   ];
 
   for (const sub of subjectsData) {

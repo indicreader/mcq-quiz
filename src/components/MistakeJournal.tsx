@@ -21,7 +21,7 @@ export default function MistakeJournal({ onBack }: { onBack: () => void }) {
         {mistakes.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center p-8">
             <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-4">
-              <BookOpen className="w-8 h-8 text-[#0061A4]" />
+              <BookOpen className="w-8 h-8 text-[var(--m3-primary)]" />
             </div>
             <h3 className="text-lg font-bold dark:text-white">All Clear!</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">Your journal is empty. Keep up the high accuracy.</p>

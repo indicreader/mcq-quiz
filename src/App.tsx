@@ -94,6 +94,18 @@ function MainApp() {
   const isAmoled = settings.themeMode === 'AMOLED';
 
   useEffect(() => {
+    const didSeed = localStorage.getItem('auto_seeded_120_new');
+    if (!didSeed) {
+        import('./lib/seed').then(({ seedData }) => {
+            seedData().then(() => {
+                localStorage.setItem('auto_seeded_120_new', 'true');
+                window.location.reload();
+            });
+        });
+    }
+  }, []);
+
+  useEffect(() => {
     try {
       StatusBar.setStyle({ style: isDarkMode ? Style.Dark : Style.Light }).catch(() => {});
       StatusBar.setBackgroundColor({ 

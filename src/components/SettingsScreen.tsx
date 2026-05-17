@@ -50,7 +50,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
  onClick={() => update({ themeMode: m })}
  className={`p-3 rounded-xl text-xs font-bold border-2 transition-all active:scale-95 ${
    settings.themeMode === m 
-     ? 'border-[#0061A4] bg-blue-50 text-[#0061A4] dark:bg-blue-900/40 dark:text-blue-200' 
+     ? 'border-[var(--m3-primary)] bg-blue-50 text-[#0061A4] dark:bg-blue-900/40 dark:text-blue-200' 
      : 'border-transparent bg-white dark:bg-gray-800 dark:text-gray-300'
  }`}
 >
@@ -93,19 +93,19 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                     <div className="flex items-center gap-3">
                         <Type className="w-4 h-4 text-gray-400 opacity-50" />
                         <input 
-                            type="range" min="12" max="32" step="1"
+                            type="number" min="12" max="32" step="1"
                             value={settings.fontSize}
                             onChange={(e) => update({ fontSize: parseInt(e.target.value) })}
-                            className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#0061A4]"
+                            className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[#0061A4] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[#0061A4]"
                         />
                     </div>
                     <div className="flex items-center gap-3">
                         <Monitor className="w-4 h-4 text-gray-400 opacity-50" />
                         <input 
-                            type="range" min="1" max="3" step="0.1"
+                            type="number" min="1" max="3" step="0.1"
                             value={settings.questionSpacing}
                             onChange={(e) => update({ questionSpacing: parseFloat(e.target.value) })}
-                            className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-[#0061A4]"
+                            className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[#0061A4] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[#0061A4]"
                         />
                     </div>
                   </div>
@@ -271,10 +271,10 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                 <span className="text-xs font-black text-[#0061A4]">{Math.round(settings.masteryThreshold * 100)}%</span>
               </div>
               <input 
-                type="range" min="0.5" max="0.99" step="0.01"
+                type="number" min="0.5" max="0.99" step="0.01"
                 value={settings.masteryThreshold}
                 onChange={(e) => update({ masteryThreshold: parseFloat(e.target.value) })}
-                className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none accent-[#0061A4]"
+                className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[#0061A4] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[#0061A4]"
               />
             </div>
 
@@ -594,7 +594,7 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
           </div>
           <div className="space-y-2">
             <div className="bg-red-50 dark:bg-red-900/10 rounded-2xl p-4 border border-red-100 dark:border-red-900/30 flex items-center justify-between cursor-pointer active:scale-95 transition-all" onClick={async () => {
-                if (window.confirm("This will wipe the current DB and insert 120 testing questions (History, Polity, Reasoning, English). Continue?")) {
+                if (window.confirm("This will wipe the current DB and insert 120 testing questions (English, Maths, Reasoning, GK & GS). Continue?")) {
                    const { seedData } = await import('../lib/seed');
                    await seedData();
                    alert("Database seeded! Reloading.");

@@ -340,7 +340,7 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
                                 min="5" max="200" step="5"
                                 value={questionLimit || 20}
                                 onChange={(e) => setQuestionLimit(parseInt(e.target.value) || 20)}
-                                className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[#0061A4] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[#0061A4]"
+                                className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[var(--m3-primary)] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[#0061A4]"
                             />
                            </div>
                       </div>

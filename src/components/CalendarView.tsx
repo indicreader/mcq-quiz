@@ -62,7 +62,7 @@ export default function CalendarView({ settings, onBack }: { settings: Settings,
             <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>
           <h2 className="text-sm font-black uppercase tracking-widest flex items-center gap-2 dark:text-white">
-            <CalendarIcon className="w-4 h-4 text-[#0061A4] dark:text-blue-300" />
+            <CalendarIcon className="w-4 h-4 text-[var(--m3-primary)] dark:text-blue-300" />
             Study Planner
           </h2>
         </div>

@@ -101,7 +101,7 @@ export default function Sidebar({ isOpen, onClose, onSelectDeck, selectedDeckId,
                 onClick={() => onSelectMode('calendar')}
                 className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300 transition-all font-medium"
               >
-                <Calendar className="w-5 h-5 text-[#0061A4]" />
+                <Calendar className="w-5 h-5 text-[var(--m3-primary)]" />
                 <span>Study Calendar</span>
               </button>
 
