@@ -1,6 +1,8 @@
 import React from 'react';
-import { ChevronLeft, Moon, Sun, Monitor, Type, Layout, Activity, Eye, Zap, Shield, RotateCcw, Save, Smartphone, Volume2, Database, Info, TrendingUp, Palette, Calendar, Clock, Bell, BookOpen } from 'lucide-react';
+import { ChevronLeft, Moon, Sun, Monitor, Type, Layout, Activity, Eye, Zap, Shield, RotateCcw, Save, Smartphone, Volume2, Database, Info, TrendingUp, Palette, Calendar, Clock, Bell, BookOpen, Layers } from 'lucide-react';
 import { Settings, FontFamily, ThemeMode, ReadingDensity, AnimationStyle, ColorMode, Orientation, Schedule } from '../lib/settings';
+import { db } from '../lib/db';
+import { useLiveQuery } from 'dexie-react-hooks';
 
 interface SettingsScreenProps {
   settings: Settings;
@@ -9,6 +11,7 @@ interface SettingsScreenProps {
 }
 
 export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsScreenProps) {
+  const decks = useLiveQuery(() => db.decks.toArray()) || [];
   const update = (patch: Partial<Settings>) => onUpdate({ ...settings, ...patch });
 
   const updateSchedule = (id: string, patch: Partial<Schedule>) => {
@@ -297,14 +300,29 @@ export default function SettingsScreen({ settings, onUpdate, onBack }: SettingsS
                             </button>
                         ))}
                     </div>
-                    <div className="flex items-center gap-2 bg-gray-50 dark:bg-black rounded-lg px-2 py-1">
-                        <Clock className="w-3 h-3 text-gray-400" />
-                        <input 
-                            type="time" 
-                            value={s.time}
-                            onChange={(e) => updateSchedule(s.id, { time: e.target.value })}
-                            className="bg-transparent text-[10px] font-black text-[#0061A4] focus:outline-none"
-                        />
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 bg-gray-50 dark:bg-black rounded-lg px-2 py-1">
+                            <Layers className="w-3 h-3 text-gray-400" />
+                            <select
+                                value={s.deckId || ''}
+                                onChange={(e) => updateSchedule(s.id, { deckId: e.target.value || undefined })}
+                                className="bg-transparent text-[10px] font-black text-[#0061A4] focus:outline-none max-w-[80px]"
+                            >
+                                <option value="">Master Deck</option>
+                                {decks.map(d => (
+                                    <option key={d.id} value={d.id}>{d.name}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex items-center gap-2 bg-gray-50 dark:bg-black rounded-lg px-2 py-1">
+                            <Clock className="w-3 h-3 text-gray-400" />
+                            <input 
+                                type="time" 
+                                value={s.time}
+                                onChange={(e) => updateSchedule(s.id, { time: e.target.value })}
+                                className="bg-transparent text-[10px] font-black text-[#0061A4] focus:outline-none"
+                            />
+                        </div>
                     </div>
                 </div>
               </div>

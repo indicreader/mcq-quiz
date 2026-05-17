@@ -11,6 +11,7 @@ export interface Schedule {
   days: number[]; // 0-6 (Sun-Sat)
   time: string; // HH:mm
   enabled: boolean;
+  deckId?: string;
 }
 
 export interface Settings {

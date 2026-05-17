@@ -9,6 +9,7 @@ export default function CalendarView({ settings, onBack }: { settings: Settings,
   
   const logs = useLiveQuery(() => db.reviewLogs.toArray()) || [];
   const conceptsCount = useLiveQuery(() => db.concepts.count()) || 0;
+  const decks = useLiveQuery(() => db.decks.toArray()) || [];
   
   const studyDates = useMemo(() => {
     const dates = new Set<string>();
@@ -105,7 +106,14 @@ export default function CalendarView({ settings, onBack }: { settings: Settings,
                               {s.type === 'TEST' ? <Zap className="w-5 h-5" /> : s.type === 'REVISION' ? <Clock className="w-5 h-5" /> : <Target className="w-5 h-5" />}
                           </div>
                           <div>
-                              <p className="text-xs font-black uppercase tracking-tight">{s.type} SESSION</p>
+                              <p className="text-xs font-black uppercase tracking-tight">
+                                  {s.type} SESSION 
+                                  {s.deckId && (
+                                      <span className="ml-2 text-[8px] bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-500">
+                                          {decks.find(d => d.id === s.deckId)?.name || 'Unknown Deck'}
+                                      </span>
+                                  )}
+                              </p>
                               <p className="text-[10px] text-gray-400 font-bold">{s.time} • Local Time</p>
                           </div>
                       </div>
