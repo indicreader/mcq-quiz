@@ -14,11 +14,13 @@ import androidx.navigation.compose.rememberNavController
 import com.mcqprep.ui.theme.McqPrepTheme
 import com.mcqprep.ui.screens.HomeScreen
 import com.mcqprep.ui.screens.SessionScreen
+import com.mcqprep.ui.screens.SessionViewModel
 import com.mcqprep.ui.screens.StatsScreen
 
 import com.mcqprep.data.local.AppDatabase
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

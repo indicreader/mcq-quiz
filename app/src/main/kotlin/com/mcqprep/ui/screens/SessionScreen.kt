@@ -19,6 +19,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import dev.jeziellago.compose.markdown.Markdown
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Check
@@ -164,15 +165,12 @@ fun RatingBar(onRatingSelected: (Int) -> Unit) {
                 onClick = { onRatingSelected(rating.value) },
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(containerColor = rating.color.copy(alpha = 0.1f)),
-                border = border(1.dp, rating.color, MaterialTheme.shapes.small)
+                border = BorderStroke(1.dp, rating.color)
             ) {
                 Text(text = rating.label, color = rating.color, style = MaterialTheme.typography.labelSmall)
             }
         }
     }
 }
-
-fun border(width: androidx.compose.ui.unit.Dp, color: Color, shape: androidx.compose.ui.graphics.Shape) = 
-    Modifier.border(width, color, shape)
 
 data class RatingInfo(val value: Int, val label: String, val color: Color)
