@@ -25,9 +25,13 @@ import Session from './components/Session';
 import Stats from './components/Stats';
 import AddQuestion from './components/AddQuestion';
 import Sidebar from './components/Sidebar';
+import SettingsScreen from './components/SettingsScreen';
+import CalendarView from './components/CalendarView';
 import { seedData } from './lib/seed';
+import MistakeJournal from './components/MistakeJournal';
+import { getSettings, saveSettings, Settings as AppSettings } from './lib/settings';
 
-type View = 'home' | 'session' | 'stats' | 'settings' | 'add';
+type View = 'home' | 'session' | 'stats' | 'settings' | 'add' | 'mistake_journal' | 'calendar';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: any }> {
   constructor(props: { children: React.ReactNode }) {
@@ -81,13 +85,41 @@ function MainApp() {
   const [sessionMode, setSessionMode] = useState<'practice' | 'revision' | 'exam'>('revision');
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    try {
-      return localStorage.getItem('theme') === 'dark';
-    } catch (e) {
-      return false;
+  const [settings, setSettings] = useState<AppSettings>(getSettings());
+
+  const isDarkMode = settings.themeMode === 'DARK' || settings.themeMode === 'AMOLED';
+  const isAmoled = settings.themeMode === 'AMOLED';
+
+  // Screen Wake Lock
+  useEffect(() => {
+    let wakeLock: any = null;
+    if (settings.keepScreenAwake && 'wakeLock' in navigator) {
+      const requestWakeLock = async () => {
+        try {
+          wakeLock = await (navigator as any).wakeLock.request('screen');
+        } catch (err) {
+          console.warn('Wake Lock request failed', err);
+        }
+      };
+      requestWakeLock();
     }
-  });
+    return () => {
+      if (wakeLock) wakeLock.release().then(() => { wakeLock = null; });
+    };
+  }, [settings.keepScreenAwake]);
+
+  // Orientation handling
+  useEffect(() => {
+    if (settings.orientation !== 'AUTO' && 'orientation' in screen) {
+        (screen as any).orientation?.lock?.(settings.orientation.toLowerCase()).catch(() => {
+            console.warn("Manual orientation lock not supported on this browser/device");
+        });
+    }
+  }, [settings.orientation]);
+
+  useEffect(() => {
+    saveSettings(settings);
+  }, [settings]);
 
   const selectedDeck = useLiveQuery(
     () => selectedDeckId ? db.decks.get(selectedDeckId) : Promise.resolve(null),
@@ -112,23 +144,40 @@ function MainApp() {
     }
   }, [decksCount]);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-    } catch (e) {
-      // Ignore
-    }
-  }, [isDarkMode]);
+  const appContainerClass = `min-h-screen transition-all duration-300 ${
+    isDarkMode ? 'dark' : ''
+  } ${
+    isAmoled ? 'amoled' : ''
+  } color-${settings.colorMode} animation-${settings.animationStyle} ${settings.orientation === 'LANDSCAPE' ? 'landscape' : ''}`;
+
+  const innerContainerClass = `mx-auto min-h-screen flex flex-col relative shadow-xl transition-all duration-300 ${
+    isDarkMode ? (isAmoled ? 'bg-black' : 'bg-[#1B1B1F]') : 'bg-white'
+  } font-family-${settings.fontFamily} density-${settings.readingDensity} ${
+    settings.orientation === 'LANDSCAPE' ? 'max-w-4xl' : 'max-w-md'
+  }`;
 
   return (
-    <div className={`min-h-screen font-sans selection:bg-[#D1E6FF] ${isDarkMode ? 'dark bg-[#1B1B1F] text-[#E3E2E6]' : 'bg-[#FEFBFF] text-[#1B1B1F]'}`}>
-      <div className={`max-w-md mx-auto min-h-screen flex flex-col relative shadow-xl transition-colors duration-300 ${isDarkMode ? 'bg-[#1B1B1F]' : 'bg-white'}`}>
+    <div className={appContainerClass} style={{ fontSize: `${settings.fontSize}px` }}>
+      <div className={innerContainerClass}>
         <Sidebar 
           isOpen={isSidebarOpen} 
           onClose={() => setIsSidebarOpen(false)} 
           selectedDeckId={selectedDeckId}
           onSelectDeck={(id) => {
             setSelectedDeckId(id);
+            setIsSidebarOpen(false);
+          }}
+          onSelectMode={(mode) => {
+            if (mode === 'mistake_journal') {
+              setView('mistake_journal');
+            } else if (mode === 'stats') {
+              setView('stats');
+            } else if (mode === 'calendar') {
+              setView('calendar');
+            } else {
+              setSessionMode(mode as any);
+              setView('session');
+            }
             setIsSidebarOpen(false);
           }}
         />
@@ -143,6 +192,7 @@ function MainApp() {
             >
               <Home 
                 selectedDeck={selectedDeck || undefined}
+                settings={settings}
                 onOpenMenu={() => setIsSidebarOpen(true)}
                 onStartSession={(mode) => {
                   setSessionMode(mode);
@@ -150,6 +200,7 @@ function MainApp() {
                 }}
                 onViewStats={() => setView('stats')}
                 onOpenSettings={() => setView('settings')}
+                onViewCalendar={() => setView('calendar')}
                 onAddQuestion={() => setView('add')}
               />
             </motion.div>
@@ -180,6 +231,7 @@ function MainApp() {
                 deckId={selectedDeckId || undefined}
                 onFinish={() => setView('home')}
                 onBack={() => setView('home')}
+                settings={settings}
               />
             </motion.div>
           )}
@@ -195,6 +247,18 @@ function MainApp() {
               <Stats onBack={() => setView('home')} />
             </motion.div>
           )}
+          
+          {view === 'mistake_journal' && (
+            <motion.div
+              key="mistake_journal"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="flex-1"
+            >
+              <MistakeJournal onBack={() => setView('home')} />
+            </motion.div>
+          )}
 
           {view === 'settings' && (
             <motion.div
@@ -204,11 +268,23 @@ function MainApp() {
               exit={{ opacity: 0, scale: 0.9 }}
               className="flex-1"
             >
-              <SettingsPage 
-                isDarkMode={isDarkMode} 
-                onToggleDarkMode={() => setIsDarkMode(!isDarkMode)} 
+              <SettingsScreen 
+                settings={settings}
+                onUpdate={setSettings}
                 onBack={() => setView('home')} 
               />
+            </motion.div>
+          )}
+
+          {view === 'calendar' && (
+            <motion.div
+              key="calendar"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 50 }}
+              className="flex-1"
+            >
+              <CalendarView onBack={() => setView('home')} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -217,42 +293,4 @@ function MainApp() {
   );
 }
 
-function SettingsPage({ isDarkMode, onToggleDarkMode, onBack }: { isDarkMode: boolean, onToggleDarkMode: () => void, onBack: () => void }) {
-  return (
-    <div className="p-6 flex flex-col gap-8 h-full">
-      <header className="flex items-center gap-4">
-        <button onClick={onBack} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-          <ChevronLeft className="w-6 h-6" />
-        </button>
-        <h2 className="text-xl font-bold">Settings</h2>
-      </header>
-
-      <section className="flex flex-col gap-6">
-        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
-          <div className="flex items-center gap-3">
-            <LayoutGrid className="w-5 h-5 text-[#0061A4]" />
-            <span className="font-medium">Dark Mode</span>
-          </div>
-          <button 
-            onClick={onToggleDarkMode}
-            className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${isDarkMode ? 'bg-[#0061A4]' : 'bg-gray-300'}`}
-          >
-            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-300 ${isDarkMode ? 'left-7' : 'left-1'}`} />
-          </button>
-        </div>
-
-        <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 opacity-50">
-          <div className="flex items-center gap-3">
-            <Zap className="w-5 h-5 text-orange-500" />
-            <span className="font-medium">Haptic Feedback</span>
-          </div>
-          <span className="text-xs font-bold text-gray-400">SOON</span>
-        </div>
-      </section>
-
-      <div className="mt-auto p-4 text-center">
-        <p className="text-xs text-gray-500 uppercase tracking-widest font-bold">mcq-prep v1.0.0 (OFFLINE)</p>
-      </div>
-    </div>
-  );
-}
+// Remove the old SettingsPage declaration as it's now in a separate file

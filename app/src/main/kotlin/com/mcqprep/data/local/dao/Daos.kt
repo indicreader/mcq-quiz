@@ -123,7 +123,14 @@ interface StudyDao {
     fun getWeakQuestions(): Flow<List<QuestionEntity>>
 }
 
-
+data class QuestionWithDetails(
+    @Embedded val question: QuestionEntity,
+    @Relation(
+        parentColumns = "id",
+        entityColumn = "questionId"
+    )
+    val options: List<OptionEntity>
+)
 
 @Dao
 interface ReviewDao {
@@ -132,4 +139,22 @@ interface ReviewDao {
 
     @Query("SELECT * FROM review_history WHERE conceptId = :conceptId ORDER BY reviewTime DESC")
     fun getHistory(conceptId: String): Flow<List<ReviewLogEntity>>
+}
+
+@Dao
+interface SettingsDao {
+    @Query("SELECT * FROM settings WHERE id = 1")
+    fun getSettings(): Flow<SettingsEntity?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveSettings(settings: SettingsEntity)
+
+    @Query("SELECT * FROM notification_schedules")
+    fun getNotificationSchedules(): Flow<List<NotificationScheduleEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveNotificationSchedule(schedule: NotificationScheduleEntity)
+
+    @Delete
+    suspend fun deleteNotificationSchedule(schedule: NotificationScheduleEntity)
 }

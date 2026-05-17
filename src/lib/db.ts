@@ -47,6 +47,11 @@ export interface Question {
   source?: string;
   negativeMarking: number;
   tags: string[];
+  // Tracking
+  solveCount: number;
+  correctCount: number;
+  wrongCount: number;
+  lastSeen?: number;
 }
 
 export interface Option {
@@ -79,12 +84,12 @@ export class McqDatabase extends Dexie {
 
   constructor() {
     super('McqPrepDB');
-    this.version(2).stores({
+    this.version(4).stores({
       decks: 'id, name',
       subjects: 'id, deckId',
       topics: 'id, subjectId',
       concepts: 'id, topicId, nextReview, isLeech, stability',
-      questions: 'id, conceptId',
+      questions: 'id, conceptId, wrongCount',
       options: 'id, questionId',
       reviewLogs: '++id, conceptId, reviewTime'
     });

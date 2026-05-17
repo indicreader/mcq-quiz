@@ -183,3 +183,43 @@ data class SessionAnalyticsEntity(
     val averageSpeedSeconds: Float,
     val weakTopics: String // Comma separated topic names
 )
+
+@Entity(tableName = "settings")
+data class SettingsEntity(
+    @PrimaryKey val id: Int = 1, // Singleton
+    // Appearance
+    val themeMode: String = "DARK", // DARK, AMOLED, LIGHT
+    val fontSize: Int = 16,
+    val fontFamily: String = "SANS_SERIF", // SANS_SERIF, DYSLEXIA, SERIF, MONOSPACE, ARIAL
+    val readingDensity: String = "COMFORTABLE", // COMPACT, COMFORTABLE, SPACIOUS
+    val animationStyle: String = "FULL", // FULL, REDUCED, DISABLED
+    val eyeStrainMode: Boolean = false,
+    val dynamicAccent: Boolean = true,
+    val questionSpacing: Float = 1.0f,
+    
+    // Interaction
+    val confirmBeforeSubmit: Boolean = true,
+    val showAnswerImmediately: Boolean = true,
+    val autoNext: Boolean = false,
+    val confidenceRatingEnabled: Boolean = true,
+    
+    // System
+    val isFullscreen: Boolean = false,
+    val orientation: String = "AUTO", // PORTRAIT, LANDSCAPE, AUTO
+    val keepScreenAwake: Boolean = true,
+    
+    // Revision logic thresholds
+    val masteryThreshold: Float = 0.85f,
+    val easyIntervalFactor: Float = 1.3f,
+    val hardIntervalFactor: Float = 0.8f
+)
+
+@Entity(tableName = "notification_schedules")
+data class NotificationScheduleEntity(
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val mode: String, // practice, test, revision
+    val hour: Int,
+    val minute: Int,
+    val daysOfWeek: String, // Comma separated: "1,2,3,4,5,6,7"
+    val isEnabled: Boolean = true
+)

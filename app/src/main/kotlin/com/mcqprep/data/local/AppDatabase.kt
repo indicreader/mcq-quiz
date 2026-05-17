@@ -16,9 +16,11 @@ import java.util.Date
         ReviewLogEntity::class,
         SessionStateEntity::class,
         ExamPatternEntity::class,
-        SessionAnalyticsEntity::class
+        SessionAnalyticsEntity::class,
+        SettingsEntity::class,
+        NotificationScheduleEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -28,6 +30,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun questionDao(): QuestionDao
     abstract fun reviewDao(): ReviewDao
     abstract fun studyDao(): StudyDao
+    abstract fun settingsDao(): SettingsDao
 
     companion object {
         @Volatile

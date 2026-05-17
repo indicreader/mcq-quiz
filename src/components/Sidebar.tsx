@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Book, Hash, Clock } from 'lucide-react';
+import { X, Book, Hash, Clock, Zap, LayoutGrid, AlertCircle, TrendingUp, Calendar } from 'lucide-react';
 import { db, type Deck } from '../lib/db';
 import { useLiveQuery } from 'dexie-react-hooks';
 
@@ -9,9 +9,10 @@ interface SidebarProps {
   onClose: () => void;
   onSelectDeck: (id: string | null) => void;
   selectedDeckId: string | null;
+  onSelectMode: (mode: 'practice' | 'revision' | 'exam' | 'stats' | 'mistake_journal' | 'calendar') => void;
 }
 
-export default function Sidebar({ isOpen, onClose, onSelectDeck, selectedDeckId }: SidebarProps) {
+export default function Sidebar({ isOpen, onClose, onSelectDeck, selectedDeckId, onSelectMode }: SidebarProps) {
   const decks = useLiveQuery(() => db.decks.toArray()) || [];
 
   return (
@@ -36,13 +37,13 @@ export default function Sidebar({ isOpen, onClose, onSelectDeck, selectedDeckId 
             className="absolute top-0 left-0 bottom-0 w-4/5 max-w-[300px] bg-[#FEFBFF] dark:bg-[#1B1B1F] z-50 shadow-2xl flex flex-col"
           >
             <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-              <h2 className="text-xl font-bold dark:text-white">Decks</h2>
+              <h2 className="text-xl font-bold dark:text-white">Prep Menu</h2>
               <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
                 <X className="w-5 h-5 dark:text-white" />
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            <div className="flex-1 overflow-y-auto p-4 space-y-1">
               <button
                 onClick={() => onSelectDeck(null)}
                 className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all ${
@@ -55,7 +56,7 @@ export default function Sidebar({ isOpen, onClose, onSelectDeck, selectedDeckId 
                 <span>All Master Deck</span>
               </button>
 
-              <div className="pt-4 pb-2 px-2 text-xs font-bold text-gray-400 uppercase tracking-widest">
+              <div className="pt-4 pb-2 px-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
                 My Subjects
               </div>
 
@@ -71,10 +72,66 @@ export default function Sidebar({ isOpen, onClose, onSelectDeck, selectedDeckId 
                 >
                   <div className="flex items-center gap-4">
                     <Book className="w-5 h-5" />
-                    <span>{deck.name}</span>
+                    <span className="truncate">{deck.name}</span>
                   </div>
                 </button>
               ))}
+
+              <div className="pt-6 pb-2 px-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                Analytics & Review
+              </div>
+
+              <button
+                onClick={() => onSelectMode('mistake_journal' as any)}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300 transition-all font-medium"
+              >
+                <AlertCircle className="w-5 h-5 text-red-500" />
+                <span>Mistake Journal</span>
+              </button>
+
+              <button
+                onClick={() => onSelectMode('stats')}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300 transition-all font-medium"
+              >
+                <TrendingUp className="w-5 h-5 text-green-500" />
+                <span>Productivity Stats</span>
+              </button>
+
+              <button
+                onClick={() => onSelectMode('calendar')}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300 transition-all font-medium"
+              >
+                <Calendar className="w-5 h-5 text-[#0061A4]" />
+                <span>Study Calendar</span>
+              </button>
+
+              <div className="pt-6 pb-2 px-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                Study Modes
+              </div>
+
+              <button
+                onClick={() => onSelectMode('practice')}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300 transition-all font-medium"
+              >
+                <Hash className="w-5 h-5 text-blue-500" />
+                <span>Practice Mode</span>
+              </button>
+
+              <button
+                onClick={() => onSelectMode('exam')}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300 transition-all font-medium"
+              >
+                <Clock className="w-5 h-5 text-orange-500" />
+                <span>Test Mode</span>
+              </button>
+
+              <button
+                onClick={() => onSelectMode('revision')}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300 transition-all font-medium"
+              >
+                <Zap className="w-5 h-5 text-yellow-500" />
+                <span>Revise Mode</span>
+              </button>
             </div>
 
             <div className="p-6 border-t border-gray-100 dark:border-gray-800 text-center text-xs text-gray-500">
@@ -87,24 +144,3 @@ export default function Sidebar({ isOpen, onClose, onSelectDeck, selectedDeckId 
   );
 }
 
-function LayoutGrid(props: any) {
-  return (
-    <svg 
-      {...props} 
-      xmlns="http://www.w3.org/2000/svg" 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
-      <rect width="7" height="7" x="3" y="3" rx="1" />
-      <rect width="7" height="7" x="14" y="3" rx="1" />
-      <rect width="7" height="7" x="14" y="14" rx="1" />
-      <rect width="7" height="7" x="3" y="14" rx="1" />
-    </svg>
-  );
-}

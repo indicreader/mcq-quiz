@@ -87,7 +87,10 @@ export default function AddQuestion({ onBack }: AddQuestionProps) {
         explanation,
         difficulty: 'Medium',
         negativeMarking: 0.25,
-        tags: []
+        tags: [],
+        solveCount: 0,
+        correctCount: 0,
+        wrongCount: 0
       });
 
       // 4. Create Options

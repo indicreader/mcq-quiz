@@ -1,18 +1,21 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Deck } from '../lib/db';
-import { Menu, Flame, Play, BarChart2, BookOpen, AlertCircle, Settings, Zap, Hash } from 'lucide-react';
+import { Menu, Flame, Play, BarChart2, BookOpen, AlertCircle, Settings, Zap, Hash, Calendar, Clock } from 'lucide-react';
+import { Settings as AppSettings } from '../lib/settings';
 
 interface HomeProps {
   selectedDeck?: Deck;
+  settings: AppSettings;
   onOpenMenu: () => void;
   onStartSession: (mode: 'practice' | 'revision' | 'exam') => void;
   onViewStats: () => void;
   onOpenSettings: () => void;
   onAddQuestion: () => void;
+  onViewCalendar: () => void;
 }
 
-export default function Home({ selectedDeck, onOpenMenu, onStartSession, onViewStats, onOpenSettings, onAddQuestion }: HomeProps) {
+export default function Home({ selectedDeck, settings, onOpenMenu, onStartSession, onViewStats, onOpenSettings, onAddQuestion, onViewCalendar }: HomeProps) {
   const dueCount = useLiveQuery(async () => {
     try {
       if (selectedDeck) {
@@ -31,6 +34,31 @@ export default function Home({ selectedDeck, onOpenMenu, onStartSession, onViewS
       return 0;
     }
   }, [selectedDeck]);
+
+  const activeSchedule = useMemo(() => {
+    const today = new Date().getDay();
+    return settings.schedules
+      .filter(s => s.enabled && s.days.includes(today))
+      .sort((a, b) => {
+        const [ah, am] = a.time.split(':').map(Number);
+        const [bh, bm] = b.time.split(':').map(Number);
+        return (ah * 60 + am) - (bh * 60 + bm);
+      })[0];
+  }, [settings.schedules]);
+
+  const isPreExam = useMemo(() => {
+    if (!settings.examDate) return false;
+    const examDate = new Date(settings.examDate);
+    const diff = examDate.getTime() - Date.now();
+    return diff > 0 && diff < 14 * 24 * 60 * 60 * 1000; // 14 days before
+  }, [settings.examDate]);
+
+  const reminders = useMemo(() => {
+    const list = [];
+    if (dueCount && dueCount > 20) list.push(`${dueCount} revision items pending.`);
+    if (isPreExam) list.push("Priority: Weak topics (Pre-Exam Protocol active).");
+    return list;
+  }, [dueCount, isPreExam]);
 
   const weakConcepts = useLiveQuery(async () => {
     try {
@@ -68,48 +96,116 @@ export default function Home({ selectedDeck, onOpenMenu, onStartSession, onViewS
             <h1 className="text-2xl font-bold tracking-tight text-[#1B1B1F] dark:text-[#E3E2E6]">
               {selectedDeck ? selectedDeck.name : 'mcq-prep'}
             </h1>
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">
-              {selectedDeck ? 'Single Subject' : 'Master Deck'}
-            </span>
+            <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-none">
+                {selectedDeck ? 'Single Subject' : 'Master Deck'}
+                </span>
+                {isPreExam && (
+                    <span className="text-[8px] font-black bg-red-100 text-red-600 px-1.5 py-0.5 rounded-sm uppercase tracking-tighter">PRE-EXAM PHASE</span>
+                )}
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={onViewCalendar}
+            className="p-2 bg-gray-50 dark:bg-gray-800 rounded-full transition-all active:scale-95"
+            title="Study Calendar"
+          >
+            <Calendar className="w-5 h-5 text-gray-400" />
+          </button>
+          <button 
+            onClick={onOpenSettings}
+            className="p-2 bg-gray-50 dark:bg-gray-800 rounded-full transition-all active:scale-95"
+            title="Settings"
+          >
+            <Settings className="w-5 h-5 text-gray-400" />
+          </button>
           <div className="flex items-center gap-2 bg-[#F4F4F9] dark:bg-gray-800 px-3 py-1.5 rounded-full">
             <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
             <span className="text-sm font-semibold dark:text-white">7</span>
           </div>
-          <button 
-            onClick={onOpenSettings}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
-          >
-            <Settings className="w-6 h-6 text-[#535F70] dark:text-[#C0C7D5]" />
-          </button>
         </div>
       </header>
 
-      <section className="bg-[#F2F7FF] dark:bg-[#001E2F] p-6 rounded-3xl border border-[#D1E6FF] dark:border-[#004A77]">
-        <h3 className="text-xs font-bold text-[#0061A4] dark:text-[#D1E6FF] tracking-widest uppercase mb-1">Due Today</h3>
+      {reminders.length > 0 && (
+          <section className="animate-in fade-in slide-in-from-top-4 duration-500">
+              {reminders.map((r, i) => (
+                  <div key={i} className="flex items-center gap-3 p-4 bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 rounded-2xl mb-2">
+                      <AlertCircle className="w-4 h-4 text-orange-600" />
+                      <p className="text-[11px] font-black text-orange-800 dark:text-orange-200 uppercase tracking-tight">{r}</p>
+                  </div>
+              ))}
+          </section>
+      )}
+
+      <section className="bg-[#F2F7FF] dark:bg-[#001E2F] p-6 rounded-3xl border border-[#D1E6FF] dark:border-[#004A77] relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+            <Zap className="w-24 h-24 text-blue-500" />
+        </div>
+        <h3 className="text-xs font-black text-[#0061A4] dark:text-[#D1E6FF] tracking-widest uppercase mb-1">Active Protocol</h3>
         <div className="flex items-baseline gap-2 mb-4">
-          <span className="text-5xl font-medium tracking-tighter dark:text-white">{dueCount ?? 0}</span>
-          <span className="text-lg text-[#535F70] dark:text-[#C0C7D5]">Concepts</span>
+          <span className="text-5xl font-black tracking-tighter dark:text-white">{dueCount ?? 0}</span>
+          <span className="text-xs font-bold text-[#535F70] dark:text-[#C0C7D5] uppercase tracking-widest">Pending</span>
         </div>
         
-        <div className="w-full bg-[#E0E2EC] dark:bg-[#44474E] h-2 rounded-full overflow-hidden mb-2">
-          <div className="bg-[#0061A4] dark:bg-[#D1E6FF] h-full transition-all duration-1000" style={{ width: dueCount ? '30%' : '0%' }} />
+        <div className="w-full bg-[#E0E2EC] dark:bg-[#44474E] h-1.5 rounded-full overflow-hidden mb-4">
+          <div className="bg-[#0061A4] dark:bg-[#D1E6FF] h-full transition-all duration-1000" style={{ width: dueCount ? `${Math.min(100, (dueCount/50)*100)}%` : '5%' }} />
         </div>
-        <p className="text-xs text-[#535F70] dark:text-[#C0C7D5]">12 reviewed of 42 total</p>
+
+        {activeSchedule && (
+            <div className="flex items-center gap-4 pt-3 border-t border-[#D1E6FF]/50 dark:border-[#004A77]/50">
+                <div className="flex items-center gap-2">
+                    <Clock className="w-3 h-3 text-[#0061A4] dark:text-[#D1E6FF]" />
+                    <span className="text-[10px] font-black dark:text-blue-100 uppercase">{activeSchedule.time}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Zap className="w-3 h-3 text-[#0061A4] dark:text-[#D1E6FF]" />
+                    <span className="text-[10px] font-black dark:text-blue-100 uppercase">{activeSchedule.type}</span>
+                </div>
+            </div>
+        )}
       </section>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-[#FAFAFE] dark:bg-gray-900 p-4 rounded-2xl border border-[#E0E2EC] dark:border-[#44474E]">
-          <span className="text-[10px] font-bold text-[#535F70] dark:text-[#C0C7D5] uppercase">Mastery</span>
-          <p className="text-xl font-semibold dark:text-white">64%</p>
-        </div>
-        <div className="bg-[#FAFAFE] dark:bg-gray-900 p-4 rounded-2xl border border-[#E0E2EC] dark:border-[#44474E]">
-          <span className="text-[10px] font-bold text-[#535F70] dark:text-[#C0C7D5] uppercase">Focus</span>
-          <p className="text-xl font-semibold dark:text-white">Technical</p>
-        </div>
+        <button 
+          onClick={onViewStats}
+          className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-[#E0E2EC] dark:border-[#44474E] text-left transition-all active:scale-95 shadow-sm"
+        >
+          <span className="text-[9px] font-black text-[#535F70] dark:text-[#C0C7D5] uppercase block mb-2 tracking-widest">Mastery</span>
+          <div className="flex items-end gap-1">
+            <p className="text-2xl font-black dark:text-white">64.2</p>
+            <span className="text-[10px] font-bold text-green-500 mb-1.5">%</span>
+          </div>
+        </button>
+        <button 
+          onClick={() => onStartSession('practice')}
+          className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-[#E0E2EC] dark:border-[#44474E] text-left transition-all active:scale-95 shadow-sm"
+        >
+          <span className="text-[9px] font-black text-[#535F70] dark:text-[#C0C7D5] uppercase block mb-2 tracking-widest">Velocity</span>
+          <div className="flex items-end gap-1">
+            <p className="text-2xl font-black dark:text-white">12</p>
+            <span className="text-[10px] font-bold text-blue-500 mb-1.5">Q/H</span>
+          </div>
+        </button>
       </div>
+
+      <section>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-xs font-bold text-[#535F70] dark:text-[#C0C7D5] tracking-widest uppercase">Weekly Goal</h3>
+          <span className="text-[9px] font-bold text-green-600 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded uppercase">ON TRACK</span>
+        </div>
+        <div className="flex justify-between gap-1 overflow-x-auto pb-2">
+            {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, i) => (
+                <div key={i} className="flex flex-col items-center gap-1 flex-1 min-w-[32px]">
+                    <span className="text-[9px] font-bold text-gray-400">{day}</span>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${i < 4 ? 'bg-[#D1E6FF] border-[#0061A4] dark:bg-[#004A77]' : 'bg-transparent border-gray-100 dark:border-gray-800'}`}>
+                        {i < 4 && <Zap className="w-3 h-3 text-[#0061A4] dark:text-[#D1E6FF]" />}
+                    </div>
+                </div>
+            ))}
+        </div>
+      </section>
 
       <section>
         <div className="flex justify-between items-center mb-4">

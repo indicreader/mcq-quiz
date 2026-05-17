@@ -86,6 +86,49 @@ fun HomeScreen(navController: NavController, conceptDao: ConceptDao, studyDao: S
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
                 }
+                
+                Divider(Modifier.padding(vertical = 8.dp))
+                Text(
+                    "Study Modes",
+                    modifier = Modifier.padding(horizontal = 28.dp, vertical = 16.dp),
+                    style = MaterialTheme.typography.titleSmall
+                )
+                
+                val modes = listOf(
+                    Triple("practice", "Practice Mode", Icons.Default.PlayArrow),
+                    Triple("test", "Test Mode", Icons.Default.Timer),
+                    Triple("revision", "Revise Mode", Icons.Default.Refresh)
+                )
+                
+                modes.forEach { (mode, label, icon) ->
+                    NavigationDrawerItem(
+                        label = { Text(label) },
+                        icon = { Icon(icon, null) },
+                        selected = selectedMode == mode,
+                        onClick = { 
+                            selectedMode = mode
+                            scope.launch { drawerState.close() }
+                            // Option to immediately start session or just select
+                            // To follow "select easy" request, selecting here is enough 
+                            // but starting is also an option if desired. 
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                    )
+                }
+
+                Spacer(Modifier.weight(1f))
+                Divider(Modifier.padding(vertical = 8.dp))
+                NavigationDrawerItem(
+                    label = { Text("Settings") },
+                    icon = { Icon(Icons.Default.Settings, null) },
+                    selected = false,
+                    onClick = { 
+                        scope.launch { drawerState.close() }
+                        navController.navigate("settings")
+                    },
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
+                Spacer(Modifier.height(12.dp))
             }
         }
     ) {

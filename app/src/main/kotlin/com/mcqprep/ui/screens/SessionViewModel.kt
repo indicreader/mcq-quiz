@@ -14,13 +14,11 @@ import com.mcqprep.data.local.entity.ExamPatternEntity
 import com.mcqprep.data.local.entity.ConceptEntity
 import com.mcqprep.data.local.entity.OptionEntity
 import com.mcqprep.data.local.entity.ReviewLogEntity
+import com.mcqprep.scheduler.FSRSScheduler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-
-// Add a placeholder for FSRSScheduler
-class FSRSScheduler
 
 data class SessionState(
     val currentConcept: ConceptEntity? = null,
@@ -38,11 +36,22 @@ class SessionViewModel(
     private val conceptDao: ConceptDao,
     private val questionDao: QuestionDao,
     private val reviewDao: ReviewDao,
-    private val studyDao: StudyDao
+    private val studyDao: StudyDao,
+    private val settingsDao: SettingsDao
 ) : ViewModel() {
     private val scheduler = FSRSScheduler()
     private val _uiState = MutableStateFlow(SessionState())
     val uiState = _uiState.asStateFlow()
+
+    private var settings = com.mcqprep.data.local.entity.SettingsEntity()
+    
+    init {
+        viewModelScope.launch {
+            settingsDao.getSettings().collect {
+                if (it != null) settings = it
+            }
+        }
+    }
 
     private var questionQueue: List<QuestionWithDetails> = emptyList()
     private var mode: String = "practice"
@@ -156,18 +165,36 @@ class SessionViewModel(
     fun onOptionSelected(optionId: String) {
         if (_uiState.value.isAnswerRevealed) return
         
+        _uiState.value = _uiState.value.copy(selectedOptionId = optionId)
+        _hapticSignal.value = HapticType.SELECT
+        
+        // If it's test mode OR confirmBeforeSubmit is off, we confirm immediately
+        if (mode == "test" || !settings.confirmBeforeSubmit) {
+            confirmAnswer()
+        }
+    }
+
+    fun confirmAnswer() {
+        if (_uiState.value.isAnswerRevealed || _uiState.value.selectedOptionId == null) return
+        
         val currentQuestion = _uiState.value.currentQuestion ?: return
-        val selectedOption = _uiState.value.shuffledOptions.find { it.id == optionId }
+        val selectedOption = _uiState.value.shuffledOptions.find { it.id == _uiState.value.selectedOptionId }
         val isCorrect = selectedOption?.isCorrect ?: false
         
         _uiState.value = _uiState.value.copy(
-            selectedOptionId = optionId,
             isAnswerRevealed = true
         )
 
         _hapticSignal.value = if (isCorrect) HapticType.CORRECT else HapticType.WRONG
         
         updateQuestionStats(currentQuestion.question, isCorrect)
+        
+        if (settings.autoNext && mode != "test") {
+            viewModelScope.launch {
+                kotlinx.coroutines.delay(1000)
+                nextQuestion()
+            }
+        }
     }
 
     private fun updateQuestionStats(question: QuestionEntity, isCorrect: Boolean) {

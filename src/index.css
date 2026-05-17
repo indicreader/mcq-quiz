@@ -1,15 +1,96 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Lexend:wght@400;500;600&family=Roboto+Slab:wght@400;700&display=swap');
 @import url('https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css');
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-dyslexic: "Lexend", sans-serif;
+  --font-serif-study: "Roboto Slab", serif;
+  --font-arial: "Arial", sans-serif;
 }
 
 body {
-  @apply bg-[#FEFBFF] text-[#1B1B1F];
+  @apply bg-[#FEFBFF] text-[#1B1B1F] transition-colors duration-300;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* FONT FAMILIES */
+.font-family-SANS_SERIF { font-family: var(--font-sans) !important; }
+.font-family-DYSLEXIA { font-family: var(--font-dyslexic) !important; }
+.font-family-SERIF { font-family: var(--font-serif-study) !important; }
+.font-family-MONOSPACE { font-family: var(--font-mono) !important; }
+.font-family-ARIAL { font-family: var(--font-arial) !important; }
+
+/* COLOR MODES */
+.color-NEUTRAL {
+  filter: grayscale(100%);
+}
+
+.color-EYE_STRAIN {
+  filter: sepia(0.3) contrast(0.9);
+}
+
+/* ANIMATION STYLES */
+.animation-REDUCED * {
+  transition-duration: 100ms !important;
+  animation-duration: 100ms !important;
+}
+
+.animation-DISABLED * {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* READING DENSITIES */
+.density-COMFORTABLE {
+  --session-padding: 1rem;
+  --item-gap: 1rem;
+}
+
+.density-COMPACT {
+  --session-padding: 0.5rem;
+  --item-gap: 0.5rem;
+  line-height: 1.25;
+}
+
+.density-SPACIOUS {
+  --session-padding: 1.5rem;
+  --item-gap: 1.5rem;
+  line-height: 1.75;
+}
+
+/* Application of Density Variables */
+.density-COMPACT .p-6, .density-COMPACT .p-4 { padding: var(--session-padding) !important; }
+.density-COMFORTABLE .p-6, .density-COMFORTABLE .p-4 { padding: var(--session-padding) !important; }
+.density-SPACIOUS .p-6, .density-SPACIOUS .p-4 { padding: var(--session-padding) !important; }
+.density-COMPACT .gap-4, .density-COMPACT .gap-6, .density-COMPACT .gap-3 { gap: var(--item-gap) !important; }
+.density-COMFORTABLE .gap-4, .density-COMFORTABLE .gap-6, .density-COMFORTABLE .gap-3 { gap: var(--item-gap) !important; }
+.density-SPACIOUS .gap-4, .density-SPACIOUS .gap-6, .density-SPACIOUS .gap-3 { gap: var(--item-gap) !important; }
+
+/* AMOLED BLACK MODE */
+.amoled.dark, .amoled .dark {
+  background-color: #000000 !important;
+}
+
+.amoled .bg-[#1B1B1F], 
+.amoled .dark .bg-[#1B1B1F],
+.amoled .bg-white,
+.amoled .dark .bg-black,
+.amoled .bg-[#FEFBFF] {
+  background-color: #000000 !important;
+}
+
+.amoled .border-gray-100, .amoled .border-[#E0E2EC], .amoled .border-[#44474E] {
+  border-color: #222222 !important;
+}
+
+.amoled .text-[#1B1B1F] {
+  color: #FFFFFF !important;
+}
+
+.grid-cols-18 {
+  grid-template-columns: repeat(18, minmax(0, 1fr));
 }
 
 .markdown-body {

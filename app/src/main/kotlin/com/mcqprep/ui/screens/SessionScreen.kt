@@ -16,16 +16,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalView
 import android.view.HapticFeedbackConstants
+import androidx.compose.ui.platform.LocalContext
+import com.mcqprep.data.local.entity.QuestionWithDetails
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.Timer
-import com.mcqprep.data.local.entity.QuestionWithDetails
+import androidx.compose.material.icons.filled.Warning
+
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
-import androidx.navigation.NavController
-import androidx.compose.ui.unit.dp
-import com.github.jeziellago.compose.markdown.Markdown
-import com.mcqprep.ui.theme.Orange
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 
 @Composable
 fun SessionScreen(navController: NavController, mode: String, viewModel: SessionViewModel) {
@@ -87,6 +89,16 @@ fun SessionScreen(navController: NavController, mode: String, viewModel: Session
                         isCorrect = option.isCorrect,
                         onClick = { viewModel.onOptionSelected(option.id) }
                     )
+                }
+            }
+
+            if (!state.isAnswerRevealed && state.selectedOptionId != null) {
+                Button(
+                    onClick = { viewModel.confirmAnswer() },
+                    modifier = Modifier.fillMaxWidth().height(56.dp),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Text("CONFIRM CHOICE", fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -231,7 +243,7 @@ fun RatingBar(onRatingSelected: (Int) -> Unit) {
     ) {
         val ratings = listOf(
             RatingInfo(1, "Again", Color.Red),
-            RatingInfo(2, "Hard", Orange),
+            RatingInfo(2, "Hard", Color.Orange),
             RatingInfo(3, "Good", Color.Blue),
             RatingInfo(4, "Easy", Color.Green)
         )
@@ -241,7 +253,7 @@ fun RatingBar(onRatingSelected: (Int) -> Unit) {
                 onClick = { onRatingSelected(rating.value) },
                 modifier = Modifier.weight(1f),
                 colors = ButtonDefaults.buttonColors(containerColor = rating.color.copy(alpha = 0.1f)),
-
+                border = BorderStroke(1.dp, rating.color)
             ) {
                 Text(text = rating.label, color = rating.color, style = MaterialTheme.typography.labelSmall)
             }

@@ -96,7 +96,10 @@ export async function seedData() {
       explanation: 'ΔU = Q - W represents the change in internal energy as heat added minus work done by the system.',
       difficulty: 'Easy' as const,
       negativeMarking: 0.25,
-      tags: ['Law', 'Energy']
+      tags: ['Law', 'Energy'],
+      solveCount: 1,
+      correctCount: 1,
+      wrongCount: 0
     },
     {
       id: 'q2',
@@ -105,7 +108,10 @@ export async function seedData() {
       explanation: 'The Second Law states that the total entropy of an isolated system can never decrease over time; it can only remain constant or increase.',
       difficulty: 'Medium' as const,
       negativeMarking: 0.25,
-      tags: ['Entropy', 'Second Law']
+      tags: ['Entropy', 'Second Law'],
+      solveCount: 0,
+      correctCount: 0,
+      wrongCount: 0
     },
     {
       id: 'q3',
@@ -114,7 +120,10 @@ export async function seedData() {
       explanation: 'Using F = ma, a = F/m = 10N / 2kg = 5 m/s².',
       difficulty: 'Easy' as const,
       negativeMarking: 0.25,
-      tags: ['Mechanics', 'Force']
+      tags: ['Mechanics', 'Force'],
+      solveCount: 2,
+      correctCount: 1,
+      wrongCount: 1
     },
     {
       id: 'q4',
@@ -123,7 +132,10 @@ export async function seedData() {
       explanation: 'An aldehyde contains a carbonyl group (-C=O) bonded to at least one hydrogen atom.',
       difficulty: 'Medium' as const,
       negativeMarking: 0.25,
-      tags: ['Organic', 'Functional Groups']
+      tags: ['Organic', 'Functional Groups'],
+      solveCount: 1,
+      correctCount: 0,
+      wrongCount: 1
     }
   ];
 
