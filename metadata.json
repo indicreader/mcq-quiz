@@ -1,0 +1,8 @@
+{
+  "name": "Remix: mcq-prep",
+  "description": "An adaptive spaced-repetition MCQ engine optimized for exam conditioning and retention under timed pressure.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

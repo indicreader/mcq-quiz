@@ -1,0 +1,34 @@
+package com.mcqprep.data.local
+
+import androidx.room.*
+import com.mcqprep.data.local.entity.*
+import com.mcqprep.data.local.dao.*
+
+@Database(
+    entities = [
+        DeckEntity::class,
+        SubjectEntity::class,
+        TopicEntity::class,
+        ConceptEntity::class,
+        QuestionEntity::class,
+        OptionEntity::class,
+        ReviewLogEntity::class
+    ],
+    version = 1,
+    exportSchema = false
+)
+@TypeConverters(Converters::class)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun deckDao(): DeckDao
+    abstract fun conceptDao(): ConceptDao
+    abstract fun questionDao(): QuestionDao
+    abstract fun reviewDao(): ReviewDao
+}
+
+class Converters {
+    @TypeConverter
+    fun fromTimestamp(value: Long?): Date? = value?.let { Date(it) }
+
+    @TypeConverter
+    fun dateToTimestamp(date: Date?): Long? = date?.time
+}
