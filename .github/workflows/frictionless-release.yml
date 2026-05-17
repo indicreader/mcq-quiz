@@ -1,0 +1,82 @@
+name: Frictionless Auto-Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version Name (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+jobs:
+  build_release:
+    name: Build & Publish Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Needed to create a GitHub Release
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Web App
+        run: npm run build
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Sync Capacitor
+        run: npx cap sync android
+
+      - name: Build Release APK & AAB
+        working-directory: ./android
+        run: ./gradlew assembleRelease bundleRelease
+
+      - name: Generate Auto-Keystore
+        run: |
+          # Generates a temporary keystore to sign the app automatically without any secrets required
+          keytool -genkey -v -keystore release.keystore -alias release-alias -keyalg RSA -keysize 2048 -validity 10000 -storepass "android" -keypass "android" -dname "CN=McqPrep Auto Release, OU=Development, O=McqPrep, L=City, ST=State, C=US"
+
+      - name: Sign Release APK
+        run: |
+          BUILD_TOOLS_VERSION=$(ls $ANDROID_SDK_ROOT/build-tools/ | sort -V | tail -n 1)
+          $ANDROID_SDK_ROOT/build-tools/$BUILD_TOOLS_VERSION/apksigner sign --ks release.keystore --ks-key-alias release-alias --ks-pass pass:android --key-pass pass:android --out app-release-signed.apk android/app/build/outputs/apk/release/app-release-unsigned.apk
+
+      - name: Sign Release AAB (App Bundle)
+        run: |
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore release.keystore -storepass android -keypass android android/app/build/outputs/bundle/release/app-release.aab release-alias
+          mv android/app/build/outputs/bundle/release/app-release.aab app-release-signed.aab
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcq-prep-release-builds
+          path: |
+            app-release-signed.apk
+            app-release-signed.aab
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version || 'v1.0.0' }}
+          name: Release ${{ github.event.inputs.version || 'v1.0.0' }}
+          files: |
+            app-release-signed.apk
+            app-release-signed.aab
+          generate_release_notes: true
