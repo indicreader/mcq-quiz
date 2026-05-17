@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.mcqprep"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.mcqprep"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -60,6 +60,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.compose.material:material-icons-extended:1.6.6")
 
     // Room
     val room_version = "2.6.1"
@@ -71,7 +72,10 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
     // Markdown
-    implementation("dev.jeziellago:compose-markdown:0.5.0")
+    implementation("com.github.jeziellago:compose-markdown:0.5.0")
+
+    // Material Components
+    implementation("com.google.android.material:material:1.11.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

@@ -123,14 +123,7 @@ interface StudyDao {
     fun getWeakQuestions(): Flow<List<QuestionEntity>>
 }
 
-data class QuestionWithDetails(
-    @Embedded val question: QuestionEntity,
-    @Relation(
-        parentColumns = "id",
-        entityColumn = "questionId"
-    )
-    val options: List<OptionEntity>
-)
+
 
 @Dao
 interface ReviewDao {

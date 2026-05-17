@@ -14,11 +14,13 @@ import com.mcqprep.data.local.entity.ExamPatternEntity
 import com.mcqprep.data.local.entity.ConceptEntity
 import com.mcqprep.data.local.entity.OptionEntity
 import com.mcqprep.data.local.entity.ReviewLogEntity
-import com.mcqprep.scheduler.FSRSScheduler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+
+// Add a placeholder for FSRSScheduler
+class FSRSScheduler
 
 data class SessionState(
     val currentConcept: ConceptEntity? = null,
