@@ -284,7 +284,10 @@ function MainApp() {
               exit={{ opacity: 0, x: 50 }}
               className="flex-1"
             >
-              <CalendarView onBack={() => setView('home')} />
+              <CalendarView 
+                settings={settings}
+                onBack={() => setView('home')} 
+              />
             </motion.div>
           )}
         </AnimatePresence>

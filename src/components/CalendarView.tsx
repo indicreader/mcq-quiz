@@ -1,12 +1,14 @@
 import React, { useMemo } from 'react';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, CheckCircle2, Circle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, CheckCircle2, Clock, Zap, Target, AlertCircle, Timer } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
+import { Settings } from '../lib/settings';
 
-export default function CalendarView({ onBack }: { onBack: () => void }) {
+export default function CalendarView({ settings, onBack }: { settings: Settings, onBack: () => void }) {
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
   
   const logs = useLiveQuery(() => db.reviewLogs.toArray()) || [];
+  const conceptsCount = useLiveQuery(() => db.concepts.count()) || 0;
   
   const studyDates = useMemo(() => {
     const dates = new Set<string>();
@@ -16,6 +18,25 @@ export default function CalendarView({ onBack }: { onBack: () => void }) {
     return dates;
   }, [logs]);
 
+  const todaySchedules = useMemo(() => {
+    const day = new Date().getDay();
+    return settings.schedules
+      .filter(s => s.enabled && s.days.includes(day))
+      .sort((a, b) => a.time.localeCompare(b.time));
+  }, [settings.schedules]);
+
+  const examStatus = useMemo(() => {
+    if (!settings.examDate) return null;
+    const exam = new Date(settings.examDate);
+    const diff = exam.getTime() - Date.now();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return {
+        days,
+        isUrgent: days > 0 && days < 14,
+        isOver: days < 0
+    };
+  }, [settings.examDate]);
+
   const daysInMonth = useMemo(() => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
@@ -23,7 +44,6 @@ export default function CalendarView({ onBack }: { onBack: () => void }) {
     const lastDate = new Date(year, month + 1, 0).getDate();
     
     const days = [];
-    // Padding for first week
     for (let i = 0; i < firstDay; i++) {
       days.push(null);
     }
@@ -48,6 +68,61 @@ export default function CalendarView({ onBack }: { onBack: () => void }) {
       </header>
 
       <main className="flex-1 overflow-y-auto p-6 space-y-8">
+        {/* Exam Countdown Banner */}
+        {examStatus && !examStatus.isOver && (
+            <section className={`p-6 rounded-3xl border ${examStatus.isUrgent ? 'bg-red-50 border-red-100 dark:bg-red-900/10 dark:border-red-900/30' : 'bg-blue-50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/30'}`}>
+                <div className="flex justify-between items-start">
+                    <div className="space-y-1">
+                        <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] ${examStatus.isUrgent ? 'text-red-500' : 'text-[#0061A4]'}`}>
+                            Target Engagement
+                        </h4>
+                        <p className="text-2xl font-black">{examStatus.days} Days Remaining</p>
+                    </div>
+                    <div className={`p-3 rounded-2xl ${examStatus.isUrgent ? 'bg-red-500 text-white' : 'bg-[#0061A4] text-white'}`}>
+                        <Timer className="w-6 h-6" />
+                    </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-black/5 flex gap-4">
+                    <div className="flex items-center gap-2">
+                        <div className={`w-2 h-2 rounded-full ${examStatus.isUrgent ? 'bg-red-500' : 'bg-[#0061A4]'}`} />
+                        <span className="text-[10px] font-bold text-gray-500 uppercase">{examStatus.isUrgent ? 'Intensive Phase' : 'Stability Phase'}</span>
+                    </div>
+                </div>
+            </section>
+        )}
+
+        {/* Today's Agenda */}
+        <section className="space-y-4">
+           <div className="flex justify-between items-center px-2">
+              <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400">Today's Agenda</h4>
+              <span className="text-[10px] font-bold text-[#0061A4] dark:text-blue-200">{todaySchedules.length} Scheduled</span>
+           </div>
+           <div className="space-y-3">
+              {todaySchedules.length > 0 ? todaySchedules.map(s => (
+                  <div key={s.id} className="group p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center justify-between shadow-sm hover:border-[#0061A4]/30 transition-all">
+                      <div className="flex items-center gap-4">
+                          <div className={`p-3 rounded-xl ${s.type === 'TEST' ? 'bg-red-50 text-red-600' : s.type === 'REVISION' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                              {s.type === 'TEST' ? <Zap className="w-5 h-5" /> : s.type === 'REVISION' ? <Clock className="w-5 h-5" /> : <Target className="w-5 h-5" />}
+                          </div>
+                          <div>
+                              <p className="text-xs font-black uppercase tracking-tight">{s.type} SESSION</p>
+                              <p className="text-[10px] text-gray-400 font-bold">{s.time} • Local Time</p>
+                          </div>
+                      </div>
+                      <button className="text-[9px] font-black text-gray-300 uppercase tracking-widest group-hover:text-[#0061A4] transition-colors">
+                          PRE-FLIGHT
+                      </button>
+                  </div>
+              )) : (
+                  <div className="p-8 text-center bg-gray-50 dark:bg-gray-800/50 rounded-3xl border-2 border-dashed border-gray-100 dark:border-gray-700">
+                      <CalendarIcon className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                      <p className="text-[10px] font-bold text-gray-400 uppercase">Reserving cycles for study</p>
+                  </div>
+              )}
+           </div>
+        </section>
+
+        {/* Monthly Calendar View */}
         <section className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-8">
              <h3 className="text-xl font-black tracking-tight">{currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}</h3>
@@ -95,10 +170,11 @@ export default function CalendarView({ onBack }: { onBack: () => void }) {
           </div>
         </section>
 
+        {/* History Hook */}
         <section className="space-y-4">
-           <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">History & Consistency</h4>
+           <h4 className="text-[10px] font-black uppercase tracking-widest text-gray-400 px-2">Consistency Log</h4>
            <div className="space-y-3">
-              {logs.slice(-5).reverse().map(log => (
+              {logs.slice(-3).reverse().map(log => (
                   <div key={log.id} className="p-4 bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 flex items-center justify-between shadow-sm">
                       <div className="flex items-center gap-3">
                           <div className={`p-2 rounded-lg ${log.rating >= 4 ? 'bg-green-50' : 'bg-orange-50'}`}>
@@ -106,11 +182,8 @@ export default function CalendarView({ onBack }: { onBack: () => void }) {
                           </div>
                           <div>
                               <p className="text-xs font-black uppercase tracking-tight">Review Session</p>
-                              <p className="text-[10px] text-gray-400 font-bold">{new Date(log.reviewTime).toLocaleString()}</p>
+                              <p className="text-[10px] text-gray-400 font-bold">{new Date(log.reviewTime).toLocaleDateString()} • {log.responseTime}ms</p>
                           </div>
-                      </div>
-                      <div className="text-[10px] font-black bg-gray-50 dark:bg-black px-2 py-1 rounded-md text-gray-500">
-                          {log.responseTime}ms
                       </div>
                   </div>
               ))}

@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Deck } from '../lib/db';
 import { Menu, Flame, Play, BarChart2, BookOpen, AlertCircle, Settings, Zap, Hash, Calendar, Clock } from 'lucide-react';
 import { Settings as AppSettings } from '../lib/settings';
+import { hapticFeedback } from '../lib/haptics';
 
 interface HomeProps {
   selectedDeck?: Deck;
@@ -16,6 +17,10 @@ interface HomeProps {
 }
 
 export default function Home({ selectedDeck, settings, onOpenMenu, onStartSession, onViewStats, onOpenSettings, onAddQuestion, onViewCalendar }: HomeProps) {
+  const handleStartSession = (mode: 'practice' | 'revision' | 'exam') => {
+    hapticFeedback('medium');
+    onStartSession(mode);
+  };
   const dueCount = useLiveQuery(async () => {
     try {
       if (selectedDeck) {
@@ -179,7 +184,7 @@ export default function Home({ selectedDeck, settings, onOpenMenu, onStartSessio
           </div>
         </button>
         <button 
-          onClick={() => onStartSession('practice')}
+          onClick={() => handleStartSession('practice')}
           className="bg-white dark:bg-gray-900 p-5 rounded-3xl border border-[#E0E2EC] dark:border-[#44474E] text-left transition-all active:scale-95 shadow-sm"
         >
           <span className="text-[9px] font-black text-[#535F70] dark:text-[#C0C7D5] uppercase block mb-2 tracking-widest">Velocity</span>
@@ -226,7 +231,7 @@ export default function Home({ selectedDeck, settings, onOpenMenu, onStartSessio
 
       <div className="mt-auto flex flex-col gap-3">
         <button 
-          onClick={() => onStartSession('revision')}
+          onClick={() => handleStartSession('revision')}
           className="w-full bg-[#0061A4] dark:bg-[#D1E6FF] text-white dark:text-[#003258] py-5 rounded-2xl font-bold text-lg shadow-lg active:scale-[0.98] transition-all flex items-center justify-center gap-2 hover:brightness-110"
         >
           <Play className="w-5 h-5 fill-current" />

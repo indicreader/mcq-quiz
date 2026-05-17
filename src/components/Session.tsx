@@ -6,6 +6,7 @@ import { ChevronLeft, Info, Timer, Check, X, ShieldCheck, AlertCircle } from 'lu
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Settings } from '../lib/settings';
+import { hapticFeedback } from '../lib/haptics';
 
 interface SessionProps {
   mode: 'practice' | 'revision' | 'exam';
@@ -132,12 +133,14 @@ export default function Session({ mode, deckId, onFinish, onBack, settings }: Se
 
   const handleOptionSelect = (id: string) => {
     if (isRevealed || isConfirmed) return;
+    hapticFeedback('light');
     setSelectedOptionId(id);
     // REMOVED: Auto-confirm logic to strictly obey STEP 3 separate button model
   };
 
   const handleConfirm = async (id: string | null = selectedOptionId) => {
     if (!id || !currentQuestion) return;
+    hapticFeedback('medium');
     setIsConfirmed(true);
     
     // Update Question Stats (Silent in Exam Mode)
@@ -163,6 +166,7 @@ export default function Session({ mode, deckId, onFinish, onBack, settings }: Se
 
   const handleRate = async (rating: number) => {
     if (!currentConcept) return;
+    hapticFeedback(rating === 1 ? 'error' : 'success');
 
     const elapsed = Math.round((Date.now() - (currentConcept.lastReview || Date.now())) / (1000 * 60 * 60 * 24));
     const next = calculateNextState(
