@@ -258,20 +258,32 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
     }
   };
 
+  const [tick, setTick] = useState(0);
+
   // Timer logic
   useEffect(() => {
-    if (timeLeft === null) return;
-    if (timeLeft <= 0) {
-      onFinish();
-      return;
+    let timer: number;
+    
+    if (timeLeft !== null) {
+      timer = window.setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev === null) return null;
+          if (prev <= 1) {
+            clearInterval(timer);
+            onFinish();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } else {
+      timer = window.setInterval(() => {
+        setTick(t => t + 1);
+      }, 1000);
     }
 
-    const timer = setInterval(() => {
-      setTimeLeft(prev => (prev !== null ? prev - 1 : null));
-    }, 1000);
-
     return () => clearInterval(timer);
-  }, [timeLeft, onFinish]);
+  }, [timeLeft === null, onFinish]);
 
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
