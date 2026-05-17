@@ -19,9 +19,22 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import dev.jeziellago.compose.markdown.Markdown
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+
 @Composable
-fun SessionScreen(navController: NavController, mode: String, viewModel: SessionViewModel = viewModel()) {
+fun SessionScreen(navController: NavController, mode: String, viewModel: SessionViewModel) {
     val state by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(mode) {
+        viewModel.startSession(mode)
+    }
+
+    if (state.isFinished) {
+        navController.popBackStack()
+    }
 
     Scaffold(
         topBar = {
@@ -45,15 +58,13 @@ fun SessionScreen(navController: NavController, mode: String, viewModel: Session
 
             // Options List
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                // Mock options for preview
-                val mockOptions = listOf("Option A", "Option B", "Option C", "Option D")
-                mockOptions.forEachIndexed { index, optionText ->
+                state.shuffledOptions.forEach { option ->
                     OptionCard(
-                        text = optionText,
-                        isSelected = state.selectedOptionId == index.toString(),
+                        text = option.text,
+                        isSelected = state.selectedOptionId == option.id,
                         isRevealed = state.isAnswerRevealed,
-                        isCorrect = index == 2, // Mocking correct as third
-                        onClick = { viewModel.onOptionSelected(index.toString()) }
+                        isCorrect = option.isCorrect,
+                        onClick = { viewModel.onOptionSelected(option.id) }
                     )
                 }
             }
@@ -129,7 +140,7 @@ fun SessionTopBar(progress: Float, onBack: () -> Unit) {
         },
         navigationIcon = {
             IconButton(onClick = onBack) {
-                // Icon(Lucide.ChevronLeft, "Back") // Use standard icon library
+                Icon(Icons.Default.ChevronLeft, "Back")
             }
         }
     )

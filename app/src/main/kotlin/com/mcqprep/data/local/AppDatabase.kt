@@ -23,6 +23,23 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun conceptDao(): ConceptDao
     abstract fun questionDao(): QuestionDao
     abstract fun reviewDao(): ReviewDao
+
+    companion object {
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
+
+        fun getDatabase(context: android.content.Context): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    "mcq_prep_db"
+                ).build()
+                INSTANCE = instance
+                instance
+            }
+        }
+    }
 }
 
 class Converters {

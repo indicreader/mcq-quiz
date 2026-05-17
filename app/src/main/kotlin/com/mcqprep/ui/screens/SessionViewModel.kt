@@ -22,19 +22,51 @@ data class SessionState(
     val completedInSession: Int = 0
 )
 
-class SessionViewModel : ViewModel() {
+class SessionViewModel(
+    private val conceptDao: ConceptDao,
+    private val questionDao: QuestionDao,
+    private val reviewDao: ReviewDao
+) : ViewModel() {
     private val scheduler = FSRSScheduler()
     private val _uiState = MutableStateFlow(SessionState())
     val uiState = _uiState.asStateFlow()
 
-    // In a real app, inject DAOs here
-    
+    private var queue: List<ConceptEntity> = emptyList()
+
     fun startSession(mode: String) {
-        // Load initial data
-        // For demo purposes, we'll assume there's a queue of concepts
+        viewModelScope.launch {
+            val now = System.currentTimeMillis()
+            conceptDao.getDueConcepts(now).collect { concepts ->
+                queue = concepts
+                _uiState.value = _uiState.value.copy(
+                    totalInSession = concepts.size,
+                    progress = 0f
+                )
+                if (concepts.isNotEmpty()) {
+                    loadConcept(concepts.first())
+                }
+            }
+        }
+    }
+
+    private fun loadConcept(concept: ConceptEntity) {
+        viewModelScope.launch {
+            val questions = questionDao.getQuestionsWithDetails(concept.id)
+            if (questions.isNotEmpty()) {
+                val question = questions.random()
+                _uiState.value = _uiState.value.copy(
+                    currentConcept = concept,
+                    currentQuestion = question,
+                    shuffledOptions = question.options.shuffled(),
+                    isAnswerRevealed = false,
+                    selectedOptionId = null
+                )
+            }
+        }
     }
 
     fun onOptionSelected(optionId: String) {
+        if (_uiState.value.isAnswerRevealed) return
         _uiState.value = _uiState.value.copy(
             selectedOptionId = optionId,
             isAnswerRevealed = true
@@ -44,16 +76,44 @@ class SessionViewModel : ViewModel() {
     fun onRatingSelected(rating: Int) {
         val currentConcept = _uiState.value.currentConcept ?: return
         
-        // Apply FSRS
-        val nextSched = scheduler.step(currentConcept, rating)
-        
-        // Update database (omitted for brevity, would use ConceptDao)
-        
-        // Move to next
-        loadNext()
-    }
+        viewModelScope.launch {
+            val sched = scheduler.step(currentConcept, rating)
+            val now = System.currentTimeMillis()
+            
+            // Log review
+            reviewDao.insertLog(ReviewLogEntity(
+                conceptId = currentConcept.id,
+                rating = rating,
+                responseTime = 0, // Placeholder
+                scheduledDays = sched.interval,
+                elapsedDays = currentConcept.elapsedDays,
+                stability = sched.stability,
+                difficulty = sched.difficulty
+            ))
 
-    private fun loadNext() {
-        // Implementation for loading next question
+            // Update concept
+            conceptDao.updateConcept(currentConcept.copy(
+                stability = sched.stability,
+                difficulty = sched.difficulty,
+                scheduledDays = sched.interval,
+                elapsedDays = 0, // Reset elapsed
+                nextReview = now + (sched.interval * 24 * 60 * 60 * 1000L),
+                lastReview = now,
+                reps = currentConcept.reps + 1,
+                state = sched.state
+            ))
+            
+            // Move next
+            val nextIndex = queue.indexOf(currentConcept) + 1
+            if (nextIndex < queue.size) {
+                _uiState.value = _uiState.value.copy(
+                    completedInSession = nextIndex,
+                    progress = nextIndex.toFloat() / queue.size
+                )
+                loadConcept(queue[nextIndex])
+            } else {
+                _uiState.value = _uiState.value.copy(isFinished = true)
+            }
+        }
     }
 }
