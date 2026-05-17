@@ -93,9 +93,17 @@ data class QuestionEntity(
     val type: String = "MCQ",
     val explanation: String,
     val difficulty: String, // Easy, Medium, Hard
-    val source: String?,
+    val source: String? = null,
     val negativeMarking: Float = 0.25f,
-    val tags: String // Comma separated tags
+    val tags: String, // Comma separated tags
+    
+    // Rotation & Analytics
+    val lastSeenTimestamp: Long = 0,
+    val solveCount: Int = 0,
+    val correctCount: Int = 0,
+    val wrongCount: Int = 0,
+    val masteryScore: Float = 0f, // 0.0 to 1.0
+    val isRecentlyUsed: Boolean = false
 )
 
 @Entity(
@@ -117,8 +125,7 @@ data class OptionEntity(
     val order: Int // To maintain index if needed, but UI will shuffle
 )
 
-@Entity(
-    tableName = "review_history",
+@Entity(tableName = "review_history",
     foreignKeys = [
         ForeignKey(
             entity = ConceptEntity::class,
@@ -138,4 +145,41 @@ data class ReviewLogEntity(
     val stability: Double,
     val difficulty: Double,
     val reviewTime: Long = System.currentTimeMillis()
+)
+
+@Entity(tableName = "session_state")
+data class SessionStateEntity(
+    @PrimaryKey val mode: String, // practice, test, revision
+    val startTime: Long,
+    val timeLimit: Long,
+    val currentQuestionIndex: Int,
+    val questionIds: String, // Comma separated IDs
+    val selectedAnswers: String, // JSON or Comma separated ID map
+    val isPaused: Boolean = false,
+    val elapsedSeconds: Long = 0
+)
+
+@Entity(tableName = "exam_patterns")
+data class ExamPatternEntity(
+    @PrimaryKey val id: String = UUID.randomUUID().toString(),
+    val name: String,
+    val totalQuestions: Int,
+    val totalTimeMinutes: Int,
+    val negativeMarking: Float,
+    val marksPerCorrect: Float,
+    val sectionalDistribution: String // JSON: { "english": 25, "maths": 25, ... }
+)
+
+@Entity(tableName = "session_analytics")
+data class SessionAnalyticsEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val mode: String,
+    val timestamp: Long = System.currentTimeMillis(),
+    val totalQuestions: Int,
+    val correctCount: Int,
+    val wrongCount: Int,
+    val skippedCount: Int,
+    val accuracy: Float,
+    val averageSpeedSeconds: Float,
+    val weakTopics: String // Comma separated topic names
 )

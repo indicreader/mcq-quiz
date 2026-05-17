@@ -68,11 +68,59 @@ interface QuestionDao {
     @Query("SELECT * FROM questions WHERE conceptId = :conceptId")
     suspend fun getQuestionsWithDetails(conceptId: String): List<QuestionWithDetails>
 
+    @Query("SELECT * FROM questions")
+    suspend fun getAllQuestions(): List<QuestionEntity>
+
+    @Query("SELECT * FROM questions WHERE id = :id")
+    suspend fun getQuestionById(id: String): QuestionEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQuestion(question: QuestionEntity)
 
+    @Update
+    suspend fun updateQuestion(question: QuestionEntity)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOptions(options: List<OptionEntity>)
+}
+
+@Dao
+interface StudyDao {
+    @Query("SELECT * FROM session_state WHERE mode = :mode")
+    suspend fun getSessionState(mode: String): SessionStateEntity?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveSessionState(state: SessionStateEntity)
+
+    @Query("DELETE FROM session_state WHERE mode = :mode")
+    suspend fun clearSessionState(mode: String)
+
+    @Query("SELECT * FROM exam_patterns")
+    fun getAllExamPatterns(): Flow<List<ExamPatternEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertExamPattern(pattern: ExamPatternEntity)
+
+    @Insert
+    suspend fun insertAnalytics(analytics: SessionAnalyticsEntity)
+
+    @Query("SELECT * FROM session_analytics ORDER BY timestamp DESC")
+    fun getAllAnalytics(): Flow<List<SessionAnalyticsEntity>>
+
+    @Query("SELECT * FROM questions")
+    suspend fun getAllQuestionsSync(): List<QuestionEntity>
+
+    @Query("SELECT * FROM questions WHERE id IN (:ids)")
+    suspend fun getQuestionsByIds(ids: List<String>): List<QuestionEntity>
+
+    @Query("SELECT * FROM options WHERE questionId IN (:questionIds)")
+    suspend fun getOptionsForQuestions(questionIds: List<String>): List<OptionEntity>
+
+    @Query("UPDATE questions SET isRecentlyUsed = 0")
+    suspend fun resetRotationFlags()
+
+    @Query("SELECT * FROM questions WHERE wrongCount > 0 OR masteryScore < 0.6")
+    fun getWeakQuestions(): Flow<List<QuestionEntity>>
 }
 
 data class QuestionWithDetails(

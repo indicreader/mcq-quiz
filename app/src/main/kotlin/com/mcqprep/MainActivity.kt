@@ -48,7 +48,7 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation(db: AppDatabase) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "home") {
-        composable("home") { HomeScreen(navController, db.conceptDao()) }
+        composable("home") { HomeScreen(navController, db.conceptDao(), db.studyDao()) }
         composable(
             route = "session/{mode}?deckId={deckId}",
             arguments = listOf(
@@ -68,7 +68,8 @@ fun AppNavigation(db: AppDatabase) {
                         return SessionViewModel(
                             db.conceptDao(),
                             db.questionDao(),
-                            db.reviewDao()
+                            db.reviewDao(),
+                            db.studyDao()
                         ) as T
                     }
                 }

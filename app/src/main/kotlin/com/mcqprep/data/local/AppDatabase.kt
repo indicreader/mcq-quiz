@@ -13,9 +13,12 @@ import java.util.Date
         ConceptEntity::class,
         QuestionEntity::class,
         OptionEntity::class,
-        ReviewLogEntity::class
+        ReviewLogEntity::class,
+        SessionStateEntity::class,
+        ExamPatternEntity::class,
+        SessionAnalyticsEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -24,6 +27,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun conceptDao(): ConceptDao
     abstract fun questionDao(): QuestionDao
     abstract fun reviewDao(): ReviewDao
+    abstract fun studyDao(): StudyDao
 
     companion object {
         @Volatile
@@ -35,7 +39,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "mcq_prep_db"
-                ).build()
+                )
+                .fallbackToDestructiveMigration()
+                .build()
                 INSTANCE = instance
                 instance
             }

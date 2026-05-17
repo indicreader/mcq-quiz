@@ -12,17 +12,48 @@ import androidx.navigation.NavController
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import com.mcqprep.data.local.dao.ConceptDao
+import com.mcqprep.data.local.dao.StudyDao
 import com.mcqprep.data.local.entity.DeckEntity
+import com.mcqprep.data.local.entity.ExamPatternEntity
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController, conceptDao: ConceptDao) {
+fun HomeScreen(navController: NavController, conceptDao: ConceptDao, studyDao: StudyDao) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val decks by conceptDao.getAllDecks().collectAsState(initial = emptyList())
     var selectedDeckId by remember { mutableStateOf<String?>(null) }
     val selectedDeckName = decks.find { it.id == selectedDeckId }?.name ?: "Master Deck"
+
+    var selectedMode by remember { mutableStateOf("practice") }
+    val patterns by studyDao.getAllExamPatterns().collectAsState(initial = emptyList())
+
+    LaunchedEffect(Unit) {
+        scope.launch {
+            if (studyDao.getAllExamPatterns().first().isEmpty()) {
+                listOf(
+                    ExamPatternEntity(
+                        name = "SSC CGL (Tier 1)",
+                        totalQuestions = 100,
+                        totalTimeMinutes = 60,
+                        negativeMarking = 0.5f,
+                        marksPerCorrect = 2f,
+                        sectionalDistribution = "{}"
+                    ),
+                    ExamPatternEntity(
+                        name = "UPSC CSAT",
+                        totalQuestions = 80,
+                        totalTimeMinutes = 120,
+                        negativeMarking = 0.83f,
+                        marksPerCorrect = 2.5f,
+                        sectionalDistribution = "{}"
+                    )
+                ).forEach { studyDao.insertExamPattern(it) }
+            }
+        }
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -170,10 +201,24 @@ fun HomeScreen(navController: NavController, conceptDao: ConceptDao) {
 
         Spacer(modifier = Modifier.weight(1f))
 
+        // Mode Selector
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            val modes = listOf("practice", "test", "revision")
+            modes.forEachIndexed { index, mode ->
+                SegmentedButton(
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size),
+                    onClick = { selectedMode = mode },
+                    selected = selectedMode == mode
+                ) {
+                    Text(mode.uppercase())
+                }
+            }
+        }
+
         // Primary CTA
         Button(
             onClick = { 
-                val route = if (selectedDeckId != null) "session/revision?deckId=$selectedDeckId" else "session/revision"
+                val route = if (selectedDeckId != null) "session/$selectedMode?deckId=$selectedDeckId" else "session/$selectedMode"
                 navController.navigate(route) 
             },
             modifier = Modifier
@@ -181,7 +226,7 @@ fun HomeScreen(navController: NavController, conceptDao: ConceptDao) {
                 .height(64.dp),
             shape = MaterialTheme.shapes.medium
         ) {
-            Text(text = "START SESSION", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
+            Text(text = "START ${selectedMode.uppercase()}", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
         }
 
         OutlinedButton(
