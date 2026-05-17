@@ -95,10 +95,10 @@ function MainApp() {
 
   useEffect(() => {
     try {
-      StatusBar.setStyle({ style: isDarkMode ? Style.Dark : Style.Light });
+      StatusBar.setStyle({ style: isDarkMode ? Style.Dark : Style.Light }).catch(() => {});
       StatusBar.setBackgroundColor({ 
         color: isAmoled ? '#000000' : isDarkMode ? '#1B1B1F' : '#FFFFFF' 
-      });
+      }).catch(() => {});
     } catch (e) {}
   }, [isDarkMode, isAmoled]);
 

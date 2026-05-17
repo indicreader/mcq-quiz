@@ -335,13 +335,12 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
                               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Question Count</span>
                            </div>
                            <div className="flex items-center gap-2">
-                            <span className="text-xs font-black text-[#0061A4]">{questionLimit || 20}</span>
                             <input 
-                                type="range" 
+                                type="number" 
                                 min="5" max="200" step="5"
                                 value={questionLimit || 20}
-                                onChange={(e) => setQuestionLimit(parseInt(e.target.value))}
-                                className="w-24 accent-[#0061A4]"
+                                onChange={(e) => setQuestionLimit(parseInt(e.target.value) || 20)}
+                                className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[#0061A4] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[#0061A4]"
                             />
                            </div>
                       </div>
@@ -350,13 +349,12 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
                               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Time (Minutes)</span>
                            </div>
                            <div className="flex items-center gap-2">
-                            <span className="text-xs font-black text-[#0061A4]">{timeLimit || 30}</span>
                             <input 
-                                type="range" 
+                                type="number" 
                                 min="5" max="240" step="5"
                                 value={timeLimit || 30}
-                                onChange={(e) => setTimeLimit(parseInt(e.target.value))}
-                                className="w-24 accent-[#0061A4]"
+                                onChange={(e) => setTimeLimit(parseInt(e.target.value) || 30)}
+                                className="w-20 bg-white dark:bg-black p-2 rounded text-xs font-black text-[#0061A4] border border-gray-200 dark:border-gray-700 text-right outline-none focus:border-[#0061A4]"
                             />
                            </div>
                         </div>
@@ -374,7 +372,7 @@ export default function Session({ mode, deckId, onFinish, onBack, settings, ques
     );
   }
 
-  if (dueConcepts === null) return <div className="p-8 text-center dark:text-gray-400">Loading session...</div>;
+  if (dueConcepts === null || dueConcepts === undefined) return <div className="p-8 text-center dark:text-gray-400">Loading session...</div>;
   if (dueConcepts.length === 0) return (
     <div className="p-8 text-center flex flex-col items-center justify-center h-full gap-4 dark:bg-[#1B1B1F]">
       <Check className="w-12 h-12 text-green-500" />
