@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Book, Hash, Clock, Zap, LayoutGrid, AlertCircle, TrendingUp, Calendar } from 'lucide-react';
+import { X, Book, Hash, Clock, Zap, LayoutGrid, AlertCircle, TrendingUp, Calendar, Mail } from 'lucide-react';
 import { db, type Deck } from '../lib/db';
 import { useLiveQuery } from 'dexie-react-hooks';
 
@@ -131,6 +131,20 @@ export default function Sidebar({ isOpen, onClose, onSelectDeck, selectedDeckId,
               >
                 <Zap className="w-5 h-5 text-yellow-500" />
                 <span>Revise Mode</span>
+              </button>
+
+              <div className="pt-6 pb-2 px-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                Support
+              </div>
+
+              <button
+                onClick={() => {
+                  window.location.href = `mailto:support@mcqprep.com?subject=McqPrep%20Feedback&body=Version:%20v1.0.0`;
+                }}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300 transition-all font-medium"
+              >
+                <Mail className="w-5 h-5 text-gray-500" />
+                <span>Contact Support</span>
               </button>
             </div>
 

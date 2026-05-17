@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Deck } from '../lib/db';
 import { Menu, Flame, Play, BarChart2, BookOpen, AlertCircle, Settings, Zap, Hash, Calendar, Clock, PlusCircle, ChevronLeft } from 'lucide-react';
 import { Settings as AppSettings } from '../lib/settings';
 import { hapticFeedback } from '../lib/haptics';
+import { AdController } from '../ads/AdController';
 
 interface HomeProps {
   selectedDeck?: Deck;
@@ -19,7 +20,17 @@ interface HomeProps {
 export default function Home({ selectedDeck, settings, onOpenMenu, onStartSession, onViewStats, onOpenSettings, onAddQuestion, onViewCalendar }: HomeProps) {
   const [showExamPicker, setShowExamPicker] = React.useState(false);
   
+  useEffect(() => {
+    AdController.showBannerAd();
+    return () => {
+      AdController.hideBannerAd();
+    };
+  }, []);
+  
   const handleStartSession = (mode: 'practice' | 'revision' | 'exam', params?: { questionLimit?: number; timeLimit?: number }) => {
+    AdController.prepareInterstitial().then(() => {
+      AdController.showInterstitial();
+    });
     hapticFeedback('medium');
     if (mode === 'exam' && !showExamPicker && !params) {
       setShowExamPicker(true);
@@ -89,7 +100,7 @@ export default function Home({ selectedDeck, settings, onOpenMenu, onStartSessio
   const isLoading = dueCount === undefined;
 
   return (
-    <div className="p-6 flex flex-col h-full gap-8">
+    <div className="p-6 pb-20 flex flex-col h-full gap-8">
       <header className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <button 

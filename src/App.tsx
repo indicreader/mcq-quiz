@@ -74,7 +74,13 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 }
 
+import { AdController } from './ads/AdController';
+
 export default function App() {
+  useEffect(() => {
+    AdController.initialize();
+  }, []);
+
   return (
     <ErrorBoundary>
       <MainApp />
