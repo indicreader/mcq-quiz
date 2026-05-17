@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Deck } from '../lib/db';
-import { Menu, Flame, Play, BarChart2, BookOpen, AlertCircle, Settings, Zap, Hash, Calendar, Clock } from 'lucide-react';
+import { Menu, Flame, Play, BarChart2, BookOpen, AlertCircle, Settings, Zap, Hash, Calendar, Clock, PlusCircle, ChevronLeft } from 'lucide-react';
 import { Settings as AppSettings } from '../lib/settings';
 import { hapticFeedback } from '../lib/haptics';
 
@@ -9,7 +9,7 @@ interface HomeProps {
   selectedDeck?: Deck;
   settings: AppSettings;
   onOpenMenu: () => void;
-  onStartSession: (mode: 'practice' | 'revision' | 'exam') => void;
+  onStartSession: (mode: 'practice' | 'revision' | 'exam', params?: { questionLimit?: number; timeLimit?: number }) => void;
   onViewStats: () => void;
   onOpenSettings: () => void;
   onAddQuestion: () => void;
@@ -17,9 +17,15 @@ interface HomeProps {
 }
 
 export default function Home({ selectedDeck, settings, onOpenMenu, onStartSession, onViewStats, onOpenSettings, onAddQuestion, onViewCalendar }: HomeProps) {
-  const handleStartSession = (mode: 'practice' | 'revision' | 'exam') => {
+  const [showExamPicker, setShowExamPicker] = React.useState(false);
+  
+  const handleStartSession = (mode: 'practice' | 'revision' | 'exam', params?: { questionLimit?: number; timeLimit?: number }) => {
     hapticFeedback('medium');
-    onStartSession(mode);
+    if (mode === 'exam' && !showExamPicker && !params) {
+      setShowExamPicker(true);
+      return;
+    }
+    onStartSession(mode, params);
   };
   const dueCount = useLiveQuery(async () => {
     try {
@@ -238,20 +244,66 @@ export default function Home({ selectedDeck, settings, onOpenMenu, onStartSessio
           START SESSION
         </button>
         <div className="flex gap-3">
-          <button 
-            onClick={onViewStats}
-            className="flex-1 text-[#0061A4] dark:text-[#D1E6FF] py-3 font-semibold text-sm hover:bg-[#F2F7FF] dark:hover:bg-[#001E2F] rounded-xl transition-colors border border-[#D1E6FF] dark:border-[#004A77]"
-          >
-            STATISTICS
-          </button>
+           <button 
+             onClick={() => handleStartSession('exam')}
+             className="flex-1 bg-white dark:bg-gray-800 text-[#0061A4] dark:text-[#D1E6FF] py-3 font-semibold text-sm hover:brightness-95 rounded-xl transition-colors border border-[#D1E6FF] dark:border-[#004A77] flex items-center justify-center gap-2"
+           >
+             <Zap className="w-4 h-4" />
+             EXAM MODE
+           </button>
           <button 
             onClick={onAddQuestion}
-            className="flex-1 bg-[#F2F7FF] dark:bg-[#001E2F] text-[#0061A4] dark:text-[#D1E6FF] py-3 font-semibold text-sm hover:brightness-95 rounded-xl transition-colors border border-[#D1E6FF] dark:border-[#004A77] flex items-center justify-center gap-2"
+            className="flex-1 bg-white dark:bg-gray-800 text-[#0061A4] dark:text-[#D1E6FF] py-3 font-semibold text-sm hover:brightness-95 rounded-xl transition-colors border border-[#D1E6FF] dark:border-[#004A77] flex items-center justify-center gap-2"
           >
-            ADD QUESTION
+            <PlusCircle className="w-4 h-4" />
+            ADD TOPIC
           </button>
         </div>
       </div>
+
+      {showExamPicker && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6 sm:p-0">
+              <div 
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                onClick={() => setShowExamPicker(false)}
+              />
+              <div className="bg-white dark:bg-[#1B1B1F] w-full max-w-sm rounded-[32px] p-8 relative z-10 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                  <h3 className="text-xl font-black text-[#1B1B1F] dark:text-white mb-2 uppercase tracking-tight">Select Exam Pattern</h3>
+                  <p className="text-xs text-gray-500 mb-6 font-medium">Standardized configurations for realistic practice sessions.</p>
+                  
+                  <div className="space-y-3">
+                      {[
+                          { title: 'Mini Mock', icon: <Zap className="w-4 h-4" />, qs: 10, time: 10, color: 'bg-blue-50 text-blue-600' },
+                          { title: 'Standard Mock', icon: <Play className="w-4 h-4" />, qs: 50, time: 60, color: 'bg-purple-50 text-purple-600' },
+                          { title: 'Full Marathon', icon: <Flame className="w-4 h-4" />, qs: 100, time: 120, color: 'bg-orange-50 text-orange-600' },
+                          { title: 'Custom Blast', icon: <Settings className="w-4 h-4" />, qs: 0, time: 0, color: 'bg-gray-50 text-gray-600' },
+                      ].map((p, i) => (
+                          <button
+                            key={i}
+                            onClick={() => handleStartSession('exam', p.qs > 0 ? { questionLimit: p.qs, timeLimit: p.time } : undefined)}
+                            className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-all active:scale-[0.98]"
+                          >
+                              <div className="flex items-center gap-3">
+                                  <div className={`p-2 rounded-lg ${p.color}`}>{p.icon}</div>
+                                  <div className="text-left">
+                                      <span className="text-sm font-bold block dark:text-white">{p.title}</span>
+                                      <span className="text-[10px] text-gray-500 font-medium uppercase tracking-widest">{p.qs > 0 ? `${p.qs} Qs / ${p.time} Mins` : 'Manual Configuration'}</span>
+                                  </div>
+                              </div>
+                              <ChevronLeft className="w-4 h-4 text-gray-300 rotate-180" />
+                          </button>
+                      ))}
+                  </div>
+                  
+                  <button 
+                    onClick={() => setShowExamPicker(false)}
+                    className="mt-6 w-full py-4 text-xs font-black text-gray-400 uppercase tracking-widest"
+                  >
+                      Cancel Protocol
+                  </button>
+              </div>
+          </div>
+      )}
     </div>
   );
 }

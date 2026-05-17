@@ -1,7 +1,7 @@
 {
-  "name": "react-example",
+  "name": "mcqprep-master",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "tsx server.ts",
@@ -9,13 +9,17 @@
     "start": "node dist/server.cjs",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "android:sync": "npm run build && npx cap sync android",
-    "android:open": "npx cap open android"
+    "mobile:build": "npm run build && npx cap sync android",
+    "android:sync": "npm run mobile:build",
+    "android:open": "npx cap open android",
+    "android:apk": "cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
     "@capacitor/android": "^8.3.4",
     "@capacitor/cli": "^8.3.4",
     "@capacitor/core": "^8.3.4",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.2",
     "@google/genai": "^1.29.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",

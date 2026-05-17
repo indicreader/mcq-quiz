@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, type Concept, type Question, type Option } from '../lib/db';
 import { calculateNextState } from '../lib/fsrs';
-import { ChevronLeft, Info, Timer, Check, X, ShieldCheck, AlertCircle } from 'lucide-react';
+import { ChevronLeft, Info, Timer, Check, X, ShieldCheck, AlertCircle, Zap, Target, Clock, Flame } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Settings } from '../lib/settings';
@@ -14,18 +14,33 @@ interface SessionProps {
   onFinish: () => void;
   onBack: () => void;
   settings: Settings;
+  questionLimit?: number;
+  timeLimit?: number; // in minutes
 }
 
-export default function Session({ mode, deckId, onFinish, onBack, settings }: SessionProps) {
+export default function Session({ mode, deckId, onFinish, onBack, settings, questionLimit: initialLimit, timeLimit: initialTimeLimit }: SessionProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
+  const [sessionStartTime] = useState(Date.now());
   const [examViolations, setExamViolations] = useState(0);
+  
+  const [setupMode, setSetupMode] = useState(mode === 'exam' && !initialLimit);
+  const [questionLimit, setQuestionLimit] = useState(initialLimit);
+  const [timeLimit, setTimeLimit] = useState(initialTimeLimit);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (timeLimit && !setupMode) {
+      setTimeLeft(timeLimit * 60);
+    }
+  }, [timeLimit, setupMode]);
 
   // Use live query to get due concepts
   const dueConcepts = useLiveQuery(async () => {
+    if (setupMode) return null;
     try {
       let results;
       if (mode === 'exam') {
@@ -35,6 +50,12 @@ export default function Session({ mode, deckId, onFinish, onBack, settings }: Se
         const topics = await db.topics.where('subjectId').anyOf(subjectIds).toArray();
         const topicIds = topics.map(t => t.id);
         results = await db.concepts.where('topicId').anyOf(topicIds).toArray();
+        
+        // Apply limit and shuffle
+        results = results.sort(() => Math.random() - 0.5);
+        if (questionLimit) {
+          results = results.slice(0, questionLimit);
+        }
       } else {
         let query = db.concepts.where('nextReview').belowOrEqual(Date.now());
         results = await query.toArray();
@@ -46,6 +67,16 @@ export default function Session({ mode, deckId, onFinish, onBack, settings }: Se
           const topicIds = topics.map(t => t.id);
           results = results.filter(c => topicIds.includes(c.topicId));
         }
+
+        // Adaptive Weak-Question Prioritization
+        if (settings.adaptivePrioritization) {
+          results.sort((a, b) => {
+            // Priority 1: High lapses
+            if (a.lapses !== b.lapses) return b.lapses - a.lapses;
+            // Priority 2: Lower stability
+            return a.stability - b.stability;
+          });
+        }
       }
       
       return results;
@@ -53,7 +84,7 @@ export default function Session({ mode, deckId, onFinish, onBack, settings }: Se
       console.error("dueConcepts Query Error:", e);
       return [];
     }
-  }, [deckId, mode]);
+  }, [deckId, mode, questionLimit, setupMode]);
 
   const currentConcept = dueConcepts?.[currentIndex];
 
@@ -68,30 +99,27 @@ export default function Session({ mode, deckId, onFinish, onBack, settings }: Se
     }
   }, [settings.isFullscreen]);
 
-  // Backgrounding detection (Anti-Cheat)
+  // Backgrounding detection (Anti-Cheat / Focus Protection)
   useEffect(() => {
-    if (mode !== 'exam' || !settings.strictExamMode) return;
-
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
         const timestamp = new Date().toLocaleTimeString();
-        setExamViolations(prev => prev + 1);
-        db.reviewLogs.add({
-            conceptId: currentConcept?.id || 'cheat_log',
-            rating: 0, // Flag as violation
-            reviewTime: Date.now(),
-            scheduledDays: 0,
-            elapsedDays: 0,
-            stability: 0,
-            difficulty: 0,
-            responseTime: 0
-        });
-        console.warn(`[${timestamp}] Backgrounding detected in Exam Mode`);
+        
+        if (mode === 'exam' && settings.strictUninterruptedMode) {
+          setExamViolations(prev => prev + 1);
+          console.warn(`[${timestamp}] Backgrounding detected in Exam Mode`);
+        }
+
+        if (mode === 'practice' && settings.pauseOnMinimize) {
+           // If we had a pause state, we'd trigger it here.
+           // For now, we'll just log it or notify the user.
+           console.log("Practice session paused due to minimization");
+        }
       }
     };
 
     const handleBlur = () => {
-        if (settings.strictExamMode) {
+        if (mode === 'exam' && settings.strictUninterruptedMode) {
             setExamViolations(prev => prev + 1);
             console.warn("Window focus lost (App switching attempt)");
         }
@@ -103,7 +131,7 @@ export default function Session({ mode, deckId, onFinish, onBack, settings }: Se
         document.removeEventListener('visibilitychange', handleVisibilityChange);
         window.removeEventListener('blur', handleBlur);
     };
-  }, [mode, settings.strictExamMode, currentConcept]);
+  }, [mode, settings.strictUninterruptedMode, currentConcept]);
   
   const currentQuestion = useLiveQuery(async () => {
     try {
@@ -154,13 +182,28 @@ export default function Session({ mode, deckId, onFinish, onBack, settings }: Se
       lastSeen: Date.now()
     });
 
-    // In Exam Mode, NEVER show answer immediately
-    if (mode !== 'exam' && settings.showAnswerImmediately) {
-      setIsRevealed(true);
+    // Handle Answer Verification Logic
+    const timing = settings.answerTiming;
+    const expMode = settings.explanationMode;
+
+    if (mode !== 'exam') {
+      if (timing === 'IMMEDIATE') {
+        setIsRevealed(true);
+      }
+      
+      if (settings.autoNext && timing === 'IMMEDIATE') {
+        setTimeout(() => {
+          if (settings.confidenceRatingEnabled) {
+            // Wait for rating
+          } else {
+            handleRate(isCorrect ? 3 : 1);
+          }
+        }, 1200); // UI delay for observation
+      }
     }
 
     if (mode === 'exam' && settings.autoNext) {
-        setTimeout(() => handleRate(3), 500);
+        setTimeout(() => handleRate(3), 800);
     }
   };
 
@@ -168,6 +211,7 @@ export default function Session({ mode, deckId, onFinish, onBack, settings }: Se
     if (!currentConcept) return;
     hapticFeedback(rating === 1 ? 'error' : 'success');
 
+    // Mastery Threshold Logic
     const elapsed = Math.round((Date.now() - (currentConcept.lastReview || Date.now())) / (1000 * 60 * 60 * 24));
     const next = calculateNextState(
       currentConcept.stability,
@@ -177,12 +221,16 @@ export default function Session({ mode, deckId, onFinish, onBack, settings }: Se
       currentConcept.state
     );
 
+    // If Mastery Threshold enabled and reached, handle suspension
+    const willMaster = next.stability >= (settings.masteryThreshold * 100);
+    const shouldSuspend = settings.suspendMastered && willMaster;
+
     await db.concepts.update(currentConcept.id, {
       stability: next.stability,
       difficulty: next.difficulty,
-      state: 2, // Review state
+      state: shouldSuspend ? 0 : 2, // Reset or mark as mastered? 
       lastReview: Date.now(),
-      nextReview: Date.now() + (next.interval * 24 * 60 * 60 * 1000),
+      nextReview: shouldSuspend ? Date.now() + (365 * 24 * 60 * 60 * 1000) : Date.now() + (next.interval * 24 * 60 * 60 * 1000),
       reps: currentConcept.reps + 1,
       lapses: rating === 1 ? currentConcept.lapses + 1 : currentConcept.lapses,
       isLeech: (currentConcept.lapses + (rating === 1 ? 1 : 0)) >= 8 ? 1 : 0
@@ -210,7 +258,123 @@ export default function Session({ mode, deckId, onFinish, onBack, settings }: Se
     }
   };
 
-  if (!dueConcepts) return <div className="p-8 text-center dark:text-gray-400">Loading session...</div>;
+  // Timer logic
+  useEffect(() => {
+    if (timeLeft === null) return;
+    if (timeLeft <= 0) {
+      onFinish();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => (prev !== null ? prev - 1 : null));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, onFinish]);
+
+  const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h > 0 ? h.toString().padStart(2, '0') + ':' : ''}${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  const elapsedSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
+
+  if (setupMode) {
+    return (
+      <div className="flex flex-col h-full bg-[#FEFBFF] dark:bg-[#1B1B1F] p-8">
+          <header className="mb-12 flex items-center gap-4">
+              <button onClick={onBack} className="p-2 bg-gray-50 dark:bg-gray-800 rounded-full">
+                  <ChevronLeft className="w-6 h-6 dark:text-white" />
+              </button>
+              <div className="flex flex-col">
+                  <h2 className="text-2xl font-black dark:text-white uppercase tracking-tight">Exam Prep</h2>
+                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Protocol Setup</span>
+              </div>
+          </header>
+
+          <div className="flex-1 space-y-6 overflow-y-auto pb-24 no-scrollbar">
+              <div className="bg-white dark:bg-gray-900 p-6 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm">
+                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6 px-1">Standardized Patterns</h3>
+                  <div className="grid grid-cols-1 gap-3">
+                      {[
+                          { name: 'Mini Mock', qs: 10, time: 10, icon: <Zap className="w-4 h-4 text-blue-500" /> },
+                          { name: 'Practice Mock', qs: 25, time: 30, icon: <Target className="w-4 h-4 text-emerald-500" /> },
+                          { name: 'Standard Exam', qs: 50, time: 60, icon: <Clock className="w-4 h-4 text-purple-500" /> },
+                          { name: 'Grand Marathon', qs: 100, time: 120, icon: <Flame className="w-4 h-4 text-orange-500" /> }
+                      ].map(p => (
+                          <button
+                              key={p.name}
+                              onClick={() => {
+                                  setQuestionLimit(p.qs);
+                                  setTimeLimit(p.time);
+                                  setSetupMode(false);
+                              }}
+                              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group active:scale-95 border border-transparent hover:border-blue-100"
+                          >
+                              <div className="flex items-center gap-4">
+                                  <div className="p-2 bg-white dark:bg-gray-800 rounded-xl shadow-sm">{p.icon}</div>
+                                  <div className="text-left">
+                                      <span className="text-sm font-bold block dark:text-white">{p.name}</span>
+                                      <span className="text-[10px] text-gray-500 font-bold uppercase">{p.qs} Qs • {p.time} Mins</span>
+                                  </div>
+                              </div>
+                              <ChevronLeft className="w-4 h-4 text-gray-300 rotate-180 group-hover:text-blue-500 transition-colors" />
+                          </button>
+                      ))}
+                  </div>
+              </div>
+
+              <div className="bg-white dark:bg-gray-900 p-6 rounded-[32px] border border-gray-100 dark:border-gray-800 shadow-sm">
+                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-6 px-1">Custom Protocol</h3>
+                  <div className="space-y-4">
+                      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
+                           <div className="flex items-center gap-3">
+                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Question Count</span>
+                           </div>
+                           <div className="flex items-center gap-2">
+                            <span className="text-xs font-black text-[#0061A4]">{questionLimit || 20}</span>
+                            <input 
+                                type="range" 
+                                min="5" max="200" step="5"
+                                value={questionLimit || 20}
+                                onChange={(e) => setQuestionLimit(parseInt(e.target.value))}
+                                className="w-24 accent-[#0061A4]"
+                            />
+                           </div>
+                      </div>
+                      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl">
+                           <div className="flex items-center gap-3">
+                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Time (Minutes)</span>
+                           </div>
+                           <div className="flex items-center gap-2">
+                            <span className="text-xs font-black text-[#0061A4]">{timeLimit || 30}</span>
+                            <input 
+                                type="range" 
+                                min="5" max="240" step="5"
+                                value={timeLimit || 30}
+                                onChange={(e) => setTimeLimit(parseInt(e.target.value))}
+                                className="w-24 accent-[#0061A4]"
+                            />
+                           </div>
+                        </div>
+                  </div>
+              </div>
+          </div>
+
+          <button
+              onClick={() => setSetupMode(false)}
+              className="w-full py-5 bg-[#0061A4] text-white rounded-2xl font-black text-xs tracking-[0.2em] shadow-xl active:scale-95 transition-all mt-4"
+          >
+              INITIATE CUSTOM EXAM
+          </button>
+      </div>
+    );
+  }
+
+  if (dueConcepts === null) return <div className="p-8 text-center dark:text-gray-400">Loading session...</div>;
   if (dueConcepts.length === 0) return (
     <div className="p-8 text-center flex flex-col items-center justify-center h-full gap-4 dark:bg-[#1B1B1F]">
       <Check className="w-12 h-12 text-green-500" />
@@ -248,7 +412,9 @@ export default function Session({ mode, deckId, onFinish, onBack, settings }: Se
         
         <div className="flex items-center gap-2 px-4 py-2 bg-[#F2F7FF] dark:bg-[#001E2F] rounded-xl border border-[#D1E6FF] dark:border-[#004A77] shadow-sm">
           <Timer className="w-4 h-4 text-[#0061A4] dark:text-[#D1E6FF]" />
-          <span className="text-xs font-black text-[#0061A4] dark:text-[#D1E6FF] tabular-nums font-mono">00:42:31</span>
+          <span className="text-xs font-black text-[#0061A4] dark:text-[#D1E6FF] tabular-nums font-mono">
+            {timeLeft !== null ? formatTime(timeLeft) : formatTime(elapsedSeconds)}
+          </span>
         </div>
       </header>
 
@@ -327,10 +493,11 @@ export default function Session({ mode, deckId, onFinish, onBack, settings }: Se
           </button>
         )}
 
-        {isRevealed && mode !== 'exam' && (
+        {isRevealed && mode !== 'exam' && settings.explanationMode !== 'DISABLED' && (
           <div className="mt-4 p-4 bg-[#F2F7FF] dark:bg-[#001E2F] rounded-2xl border border-[#D1E6FF] dark:border-[#004A77] animate-in fade-in slide-in-from-bottom-2">
             <h4 className="text-[10px] font-extrabold text-[#0061A4] dark:text-[#D1E6FF] uppercase mb-2 flex items-center gap-1">
-              <Info className="w-3 h-3" /> Explanation
+              <Info className="w-3 h-3" /> Explanation 
+              {settings.explanationMode === 'DELAYED' && <span className="text-[8px] opacity-60 ml-1">(Delayed Mode)</span>}
             </h4>
             <div className="markdown-body text-xs leading-relaxed text-[#44474E] dark:text-[#C0C7D5]">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>

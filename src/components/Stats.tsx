@@ -180,7 +180,7 @@ export default function Stats({ onBack }: { onBack: () => void }) {
                 );
                 })}
             </div>
-            <div className="flex justify-between mt-3 text-[8px] font-black text-gray-400 uppercase tracking-widest px-1">
+            <div className="flex justify-between mt-3 text-[8px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest px-1">
                 <span>Mar</span>
                 <span>Apr</span>
                 <span>May</span>
@@ -199,7 +199,7 @@ export default function Stats({ onBack }: { onBack: () => void }) {
             {subjectPerformance.map(s => (
               <div key={s.name} className="flex flex-col gap-2">
                  <div className="flex justify-between items-end">
-                    <span className="text-[10px] font-black dark:text-[#E3E2E6] uppercase tracking-wider">{s.name}</span>
+                    <span className="text-[10px] font-black dark:text-white uppercase tracking-wider">{s.name}</span>
                     <span className={`text-[10px] font-black ${s.score > 70 ? 'text-green-500' : s.score > 40 ? 'text-orange-500' : 'text-red-500'}`}>
                         {s.score < 40 ? 'CRITICAL' : s.score < 70 ? 'NEEDS FOCUS' : 'STABLE'}
                     </span>

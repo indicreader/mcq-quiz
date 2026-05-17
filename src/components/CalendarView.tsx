@@ -61,8 +61,8 @@ export default function CalendarView({ settings, onBack }: { settings: Settings,
           <button onClick={onBack} className="p-2 rounded-lg bg-gray-50 dark:bg-gray-800 transition-all active:scale-90">
             <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>
-          <h2 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
-            <CalendarIcon className="w-4 h-4 text-[#0061A4]" />
+          <h2 className="text-sm font-black uppercase tracking-widest flex items-center gap-2 dark:text-white">
+            <CalendarIcon className="w-4 h-4 text-[#0061A4] dark:text-blue-300" />
             Study Planner
           </h2>
         </div>
@@ -74,10 +74,10 @@ export default function CalendarView({ settings, onBack }: { settings: Settings,
             <section className={`p-6 rounded-3xl border ${examStatus.isUrgent ? 'bg-red-50 border-red-100 dark:bg-red-900/10 dark:border-red-900/30' : 'bg-blue-50 border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/30'}`}>
                 <div className="flex justify-between items-start">
                     <div className="space-y-1">
-                        <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] ${examStatus.isUrgent ? 'text-red-500' : 'text-[#0061A4]'}`}>
+                        <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] ${examStatus.isUrgent ? 'text-red-500' : 'text-[#0061A4] dark:text-blue-300'}`}>
                             Target Engagement
                         </h4>
-                        <p className="text-2xl font-black">{examStatus.days} Days Remaining</p>
+                        <p className="text-2xl font-black dark:text-white">{examStatus.days} Days Remaining</p>
                     </div>
                     <div className={`p-3 rounded-2xl ${examStatus.isUrgent ? 'bg-red-500 text-white' : 'bg-[#0061A4] text-white'}`}>
                         <Timer className="w-6 h-6" />
@@ -106,11 +106,13 @@ export default function CalendarView({ settings, onBack }: { settings: Settings,
                               {s.type === 'TEST' ? <Zap className="w-5 h-5" /> : s.type === 'REVISION' ? <Clock className="w-5 h-5" /> : <Target className="w-5 h-5" />}
                           </div>
                           <div>
-                              <p className="text-xs font-black uppercase tracking-tight">
+                              <p className="text-xs font-black uppercase tracking-tight dark:text-white">
                                   {s.type} SESSION 
-                                  {s.deckId && (
-                                      <span className="ml-2 text-[8px] bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-500">
-                                          {decks.find(d => d.id === s.deckId)?.name || 'Unknown Deck'}
+                                  {s.deckIds.length > 0 && (
+                                      <span className="ml-2 text-[8px] bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-gray-500 dark:text-gray-400">
+                                          {s.deckIds.length === 1 
+                                              ? decks.find(d => d.id === s.deckIds[0])?.name || 'Unknown'
+                                              : `${s.deckIds.length} Decks`}
                                       </span>
                                   )}
                               </p>
@@ -133,7 +135,7 @@ export default function CalendarView({ settings, onBack }: { settings: Settings,
         {/* Monthly Calendar View */}
         <section className="bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 p-6 shadow-sm">
           <div className="flex items-center justify-between mb-8">
-             <h3 className="text-xl font-black tracking-tight">{currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}</h3>
+             <h3 className="text-xl font-black tracking-tight dark:text-white">{currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}</h3>
              <div className="flex gap-2">
                 <button 
                   onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}

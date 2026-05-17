@@ -30,6 +30,8 @@ import CalendarView from './components/CalendarView';
 import { seedData } from './lib/seed';
 import MistakeJournal from './components/MistakeJournal';
 import { getSettings, saveSettings, Settings as AppSettings } from './lib/settings';
+import { StatusBar, Style } from '@capacitor/status-bar';
+import { hapticFeedback } from './lib/haptics';
 
 type View = 'home' | 'session' | 'stats' | 'settings' | 'add' | 'mistake_journal' | 'calendar';
 
@@ -83,12 +85,22 @@ export default function App() {
 function MainApp() {
   const [view, setView] = useState<View>('home');
   const [sessionMode, setSessionMode] = useState<'practice' | 'revision' | 'exam'>('revision');
+  const [sessionParams, setSessionParams] = useState<{ questionLimit?: number; timeLimit?: number }>({});
   const [selectedDeckId, setSelectedDeckId] = useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [settings, setSettings] = useState<AppSettings>(getSettings());
 
   const isDarkMode = settings.themeMode === 'DARK' || settings.themeMode === 'AMOLED';
   const isAmoled = settings.themeMode === 'AMOLED';
+
+  useEffect(() => {
+    try {
+      StatusBar.setStyle({ style: isDarkMode ? Style.Dark : Style.Light });
+      StatusBar.setBackgroundColor({ 
+        color: isAmoled ? '#000000' : isDarkMode ? '#1B1B1F' : '#FFFFFF' 
+      });
+    } catch (e) {}
+  }, [isDarkMode, isAmoled]);
 
   // Screen Wake Lock
   useEffect(() => {
@@ -194,8 +206,9 @@ function MainApp() {
                 selectedDeck={selectedDeck || undefined}
                 settings={settings}
                 onOpenMenu={() => setIsSidebarOpen(true)}
-                onStartSession={(mode) => {
+                onStartSession={(mode, params) => {
                   setSessionMode(mode);
+                  setSessionParams(params || {});
                   setView('session');
                 }}
                 onViewStats={() => setView('stats')}
@@ -232,6 +245,8 @@ function MainApp() {
                 onFinish={() => setView('home')}
                 onBack={() => setView('home')}
                 settings={settings}
+                questionLimit={sessionParams.questionLimit}
+                timeLimit={sessionParams.timeLimit}
               />
             </motion.div>
           )}

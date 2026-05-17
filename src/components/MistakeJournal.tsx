@@ -14,7 +14,7 @@ export default function MistakeJournal({ onBack }: { onBack: () => void }) {
         <button onClick={onBack} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
           <ChevronLeft className="w-6 h-6" />
         </button>
-        <h2 className="text-xl font-bold">Mistake Journal</h2>
+        <h2 className="text-xl font-bold dark:text-white">Mistake Journal</h2>
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -23,8 +23,8 @@ export default function MistakeJournal({ onBack }: { onBack: () => void }) {
             <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-4">
               <BookOpen className="w-8 h-8 text-[#0061A4]" />
             </div>
-            <h3 className="text-lg font-bold">All Clear!</h3>
-            <p className="text-sm text-gray-500">Your journal is empty. Keep up the high accuracy.</p>
+            <h3 className="text-lg font-bold dark:text-white">All Clear!</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Your journal is empty. Keep up the high accuracy.</p>
           </div>
         ) : (
           mistakes.map(q => (
@@ -39,7 +39,7 @@ export default function MistakeJournal({ onBack }: { onBack: () => void }) {
                   <span>{q.wrongCount} WRONG</span>
                 </div>
               </div>
-              <p className="text-sm font-medium mb-3 line-clamp-3">{q.text}</p>
+              <p className="text-sm font-medium mb-3 line-clamp-3 dark:text-gray-300">{q.text}</p>
               <div className="flex flex-wrap gap-1">
                 {q.tags.map(t => (
                   <span key={t} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded text-[9px] font-bold text-gray-500 uppercase">{t}</span>
