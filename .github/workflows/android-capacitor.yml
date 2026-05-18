@@ -1,5 +1,4 @@
-name: Capacitor Android Sync
-
+name: Android Build
 on:
   push:
     branches:
@@ -9,32 +8,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v5
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js 22
-        uses: actions/setup-node@v5
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
         with:
-          node-version: 22
-          cache: npm
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
 
-      - name: Verify Node version
-        run: node -v
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
 
-      - name: Install Capacitor CLI
-        run: npm install @capacitor/cli
-npm install @capacitor/cli@older-version
-
-      - name: Sync Capacitor Android
-        run: npx cap sync android
-
-      - name: Upload Android folder (artifact)
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: android-build
-          path: android
+          name: app-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
