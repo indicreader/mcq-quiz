@@ -1,0 +1,39 @@
+name: Capacitor Android Sync
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Verify Node version
+        run: node -v
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Capacitor CLI (explicit safety)
+        run: npm install @capacitor/cli
+
+      - name: Sync Capacitor Android
+        run: npx cap sync android
+
+      - name: Upload Android folder (artifact)
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build
+          path: android
