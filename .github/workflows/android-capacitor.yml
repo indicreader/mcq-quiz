@@ -12,10 +12,10 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -26,8 +26,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Capacitor CLI (explicit safety)
+      - name: Install Capacitor CLI
         run: npm install @capacitor/cli
+npm install @capacitor/cli@older-version
 
       - name: Sync Capacitor Android
         run: npx cap sync android
